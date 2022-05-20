@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% include 'header.html' %}
+{% block title %} Edit item {% endblock %}
+{% block body %}
+<div class="container">
+  <form action="" method="POST">
+    <table class="table">
+      <tr>
+        <td>Nom du Produit</td>
+        <td><input type="text" name="name" class="form-control" value="{{products.name}}"/></td>
+      </tr>
+      <tr>
+        <td>Description</td>
+        <td><input type="text" name="description" class="form-control" value="{{products.description}}"/></td>
+      </tr>
+
+      <tr>
+        <td>Prix</td>
+        <td><input type="text" name="price" class="form-control" value="{{products.price}}"/></td>
+      </tr>
+
+      <tr>
+        <td>Quantité</td>
+        <td><input type="text" name="qty" class="form-control" value="{{products.qty}}"/></td>
+      </tr>
+
+      <tr>
+        <td>Lien de l'image du produit</td>
+        <td><input type="text" name="img" class="form-control" value="{{products.img}}"/></td>
+      </tr>
+
+      <tr>
+        <td>Category</td>
+        <td>
+          <select name="category" class="form-control">
+            <option>{{products.category}}</option>
+            <option value="Supermarché">Supermarché</option>
+            <option value="Beauté & Santé">Beauté & Santé</option>
+            <option value="Vêtements & Chaussures">
+              Vêtements & Chaussures
+            </option>
+            <option value="Accessoires Mode">Accessoires Mode</option>
+            <option value="Maison & Cuisine">Maison & Cuisine</option>
+            <option value="Téléphone & Tablette">Téléphone & Tablette</option>
+            <option value="Électroménager">Électroménager</option>
+            <option value="Sports & Loisirs">Sports & Loisirs</option>
+            <option value="TV & Hi Tech">TV & Hi Tech</option>
+            <option value="Informatique">Informatique</option>
+            <option value="Bébé & Jouets">Bébé & Jouets</option>
+            <option value="Autres">Autres</option>
+          </select>
+        </td>
+      </tr>
+
+      <tr>
+        <td colspan="2">
+          <input
+            type="submit"
+            name="submit"
+            value="submit"
+            class="btn btn-warning"
+          />
+        </td>
+      </tr>
+    </table>
+  </form>
+</div>
+{% endblock %}

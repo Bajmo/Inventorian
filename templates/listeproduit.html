@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% include 'header.html' %}
+{% block title %} Item list {% endblock %}
+{% block body %}
+<div class="container">
+  <table class="table table-bordered">
+    <thead style="background-color: rgb(193, 122, 222); color: aliceblue">
+      <th>ID</th>
+      <th>Image du Produit</th>
+      <th>Nom du Produit</th>
+      <th>Description</th>
+      <th>Prix</th>
+      <th>Quantité</th>
+      <th>Category</th>
+      <th>Actions</th>
+    </thead>
+
+    <tbody>
+      {% for product in products %} <tr {% if loop.index %2==0 %}
+      style="background-color: rgb(255, 255, 255);" {% else %}
+      style="background-color: rgb(255, 255, 255);" {% endif %} >
+      <td>{{ loop.index }}</td>
+      <td height="100" width="100">
+        <img src="{{product.img}}" alt="" height="100" width="100" />
+      </td>
+      <td>{{product.name}}</td>
+      <td>{{product.description}}</td>
+      <td width="120">{{product.price}} DH</td>
+      <td>{{product.qty}}</td>
+      <td>{{product.category}}</td>
+      <td>
+        <span style="font-size: 24px; color: green">
+          <a href="/{{product.id}}/edit"> <i class="fas fa-edit"></i></a>
+        </span>
+        |
+        <span style="font-size: 24px; color: red">
+          <a href="/{{product.id}}/delete"> <i class="fas fa-trash-alt"></i></a
+        ></span>
+      </td>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}
