@@ -281,6 +281,23 @@ def delete(id):
 
     return render_template('delete.html')
 
+@app.route('/client_list', methods=['GET'])
+def RetrieveClientList():
+    clients = Client.query.all()
+    return render_template('client_list.html', clients=clients)
+
+@app.route('/<int:id>/delete_client', methods=['POST'])
+def deleteClient(id):
+    clients = Client.query.filter_by(id=id).first()
+    if request.method == 'POST':
+        if clients:
+            db.session.delete(clients)
+            db.session.commit()
+            return redirect('/')
+
+    return (render_template('delete_client.html'), {"results":'deleted'})
+
+
 
 if __name__ == '__main__':
     app.run(host='192.168.1.232', debug=True)
