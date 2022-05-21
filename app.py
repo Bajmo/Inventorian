@@ -64,7 +64,6 @@ class Panier(db.Model):
     id_Client=db.Column(db.Integer, db.ForeignKey(Client.id)) 
     id_Product=db.Column(db.Integer, db.ForeignKey(ProductModel.id)) 
     qte=db.Column(db.Integer)
-    children = db.relationship('Commande',backref='Panier')
     
 
     def _init_(self,id_Client,id_Product,qte):
@@ -75,22 +74,29 @@ class Panier(db.Model):
 class Commande(db.Model):
     id= db.Column(db.Integer, primary_key=True)
     id_Client=db.Column(db.Integer, db.ForeignKey(Client.id)) 
-    id_Product=db.Column(db.Integer, db.ForeignKey(ProductModel.id)) 
-    id_panier=db.Column(db.Integer, db.ForeignKey(Panier.id)) 
     dateComande=db.Column(db.String(100))
     adresseCommande =db.Column(db.String(100))
-    TotalPrix=db.Column(db.Float)
-    staus=db.Column(db.String(100)) 
+    TotalPrix=db.Column(db.Float) 
+    status=db.Column(db.String(100))
 
-    def _ini_(self,id_Client,id_Product,id_panier,dateComande,adresseCommande,TotalPrix,staus):
+    def _ini_(self,id_Client,dateComande,adresseCommande,TotalPrix,status):
         self.id_Client=id_Client
-        self.id_Product=id_Product
-        self.id_panier=id_panier
         self.dateComande=dateComande
         self.adresseCommande=adresseCommande
         self.TotalPrix=TotalPrix
-        self.staus=staus
-        
+        self.status=status
+
+class DetailCommande(db.Model):
+    id= db.Column(db.Integer, primary_key=True)
+    id_Comande=db.Column(db.Integer, db.ForeignKey(Commande.id)) 
+    prix_unitaire=db.Column(db.Float)
+    qty_unitaire=db.Column(db.Integer)
+
+    def _ini_(self,id_Comande,prix_unitaire,qty_unitaire):
+        self.id_Comande=id_Comande
+        self.prix_unitaire=prix_unitaire
+        self.qty_unitaire=qty_unitaire
+         
 
     
 
@@ -113,7 +119,11 @@ class PanierSchema(ma.Schema):
 
 class CommandeSchema(ma.Schema):
     class Meta:
-        fields = ('id','id_Client','id_Product','id_panier','TotalPrix','dateComande','adresseCommande','staus')
+        fields = ('id','id_Client','TotalPrix','dateComande','adresseCommande','status')
+
+class DetailCommandeSchema(ma.Schema):
+    class Meta:
+        fields = ('id','id_Comande','prix_unitaire','qty_unitaire')
 
 # INIT SCHEMA
 client_schema = ClientSchema()
@@ -127,6 +137,10 @@ paniers_schema = PanierSchema(many=True)
 
 commande_schema = CommandeSchema()
 commandes_schema = CommandeSchema(many=True)
+
+
+detailComande_schema = DetailCommandeSchema()
+detailComandes_schema = DetailCommandeSchema(many=True)
 
 
 @app.route('/add_client', methods=['POST'])
@@ -204,17 +218,24 @@ def deleteProductFromPanier(id,idp):
 
 @app.route('/ajouteCommande',methods=['POST'])
 def ajouterCommande():
+    ## fields = ('id','id_Client','TotalPrix','dateComande','adresseCommande','status')
     id_Client = request.json['id_Client']
-    id_Product = request.json['id_Product']
     TotalPrix = request.json['TotalPrix']
     dateComande = request.json['dateComande']
     adresseCommande = request.json['adresseCommande']
-    id_panier=request.json['id_panier']
-    staus=request.json['staus']
-    new_commande = Commande(id_Client=id_Client,id_Product=id_Product,id_panier=id_panier,TotalPrix=TotalPrix,dateComande=dateComande,adresseCommande=adresseCommande,staus=staus)
+    status=request.json['status']
+    new_commande = Commande(id_Client=id_Client,TotalPrix=TotalPrix,dateComande=dateComande,adresseCommande=adresseCommande,status=status)
     db.session.add(new_commande)
     db.session.commit()
-    return {"results": "ok"}    
+    return {"results": "ok"} 
+
+@app.route('/getIdCommande/<id>/<date>',methods=['GET'])    
+def getIdCommande(id,date):
+    idComande=Commande.query.filter_by(id_Client=id,dateComande=date).first()
+    return {"id":str(idComande.id)}
+
+
+       
 
 
 # WEB
