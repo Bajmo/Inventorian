@@ -64,6 +64,7 @@ class Panier(db.Model):
     id_Client=db.Column(db.Integer, db.ForeignKey(Client.id)) 
     id_Product=db.Column(db.Integer, db.ForeignKey(ProductModel.id)) 
     qte=db.Column(db.Integer)
+    children = db.relationship('Commande',backref='Panier')
     
 
     def _init_(self,id_Client,id_Product,qte):
@@ -75,16 +76,20 @@ class Commande(db.Model):
     id= db.Column(db.Integer, primary_key=True)
     id_Client=db.Column(db.Integer, db.ForeignKey(Client.id)) 
     id_Product=db.Column(db.Integer, db.ForeignKey(ProductModel.id)) 
+    id_panier=db.Column(db.Integer, db.ForeignKey(Panier.id)) 
     dateComande=db.Column(db.String(100))
     adresseCommande =db.Column(db.String(100))
-    TotalPrix=db.Column(db.Float) 
+    TotalPrix=db.Column(db.Float)
+    staus=db.Column(db.String(100)) 
 
-    def _ini_(self,id_Client,id_Product,dateComande,adresseCommande,TotalPrix):
+    def _ini_(self,id_Client,id_Product,id_panier,dateComande,adresseCommande,TotalPrix,staus):
         self.id_Client=id_Client
         self.id_Product=id_Product
+        self.id_panier=id_panier
         self.dateComande=dateComande
         self.adresseCommande=adresseCommande
         self.TotalPrix=TotalPrix
+        self.staus=staus
         
 
     
@@ -108,7 +113,7 @@ class PanierSchema(ma.Schema):
 
 class CommandeSchema(ma.Schema):
     class Meta:
-        fields = ('id','id_Client','id_Product','TotalPrix','dateComande','adresseCommande')
+        fields = ('id','id_Client','id_Product','id_panier','TotalPrix','dateComande','adresseCommande','staus')
 
 # INIT SCHEMA
 client_schema = ClientSchema()
@@ -203,7 +208,10 @@ def ajouterCommande():
     id_Product = request.json['id_Product']
     TotalPrix = request.json['TotalPrix']
     dateComande = request.json['dateComande']
-    new_commande = Commande(id_Client=id_Client,id_Product=id_Product,TotalPrix=TotalPrix,dateComande=dateComande)
+    adresseCommande = request.json['adresseCommande']
+    id_panier=request.json['id_panier']
+    staus=request.json['staus']
+    new_commande = Commande(id_Client=id_Client,id_Product=id_Product,id_panier=id_panier,TotalPrix=TotalPrix,dateComande=dateComande,adresseCommande=adresseCommande,staus=staus)
     db.session.add(new_commande)
     db.session.commit()
     return {"results": "ok"}    
@@ -285,4 +293,4 @@ def delete(id):
 
 
 if __name__ == '__main__':
-    app.run(host='192.168.1.232', debug=True)
+    app.run(host='192.168.1.117', debug=True)
