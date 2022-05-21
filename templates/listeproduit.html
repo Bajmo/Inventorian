@@ -2,7 +2,92 @@
 {% include 'header.html' %}
 {% block title %} Item list {% endblock %}
 {% block body %}
-<div class="container">
+
+
+<div class="main-content mr-md-auto">
+  <div class="header bg-gradient-primary">
+    <div class="container-fluid">
+   
+      <div class="header-body">
+        <div class="row">
+          <div class="col-xl-3 col-lg-6">
+            <div class="card card-stats mb-4 mb-xl-0">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col">
+                    <h5 class="card-title text-uppercase text-muted mb-0">Nombre des Clients</h5>
+                    <span class="h2 font-weight-bold mb-0">{{nbrClints}} Clients</span>
+                  </div>
+                  <div class="col-auto">
+                    <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
+                      <i class="fas fa-chart-bar"></i>
+                    </div>
+                  </div>
+                </div>
+               
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-lg-6">
+            <div class="card card-stats mb-4 mb-xl-0">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col">
+                    <h5 class="card-title text-uppercase text-muted mb-0">Nombre des Commandes</h5>
+                    <span class="h2 font-weight-bold mb-0">0</span>
+                  </div>
+                  <div class="col-auto">
+                    <div class="icon icon-shape bg-warning text-white rounded-circle shadow">
+                      <i class="fas fa-chart-pie"></i>
+                    </div>
+                  </div>
+                </div>
+               
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-lg-6">
+            <div class="card card-stats mb-4 mb-xl-0">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col">
+                    <h5 class="card-title text-uppercase text-muted mb-0">nombre des Produits</h5>
+                    <span class="h2 font-weight-bold mb-0">{{nbrProduits}} Produits</span>
+                  </div>
+                  <div class="col-auto">
+                    <div class="icon icon-shape bg-yellow text-white rounded-circle shadow">
+                      <i class="fas fa-users"></i>
+                    </div>
+                  </div>
+                </div>
+               
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-lg-6">
+            <div class="card card-stats mb-4 mb-xl-0">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col">
+                    <h5 class="card-title text-uppercase text-muted mb-0">Commandes confirmer</h5>
+                    <span class="h2 font-weight-bold mb-0">0</span>
+                  </div>
+                  <div class="col-auto">
+                    <div class="icon icon-shape bg-info text-white rounded-circle shadow">
+                      <i class="fas fa-percent"></i>
+                    </div>
+                  </div>
+                </div>
+              
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+<div class="container pb-8 pt-5 pt-md-8">
   <table class="table table-bordered">
     <thead style="background-color: rgb(193, 122, 222); color: aliceblue">
       <th>ID</th>
@@ -41,5 +126,10 @@
     </tbody>
   </table>
 </div>
+
+
+
+
+
 
 {% endblock %}
