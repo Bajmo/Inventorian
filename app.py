@@ -134,7 +134,8 @@ def getAllClients():
 def ajouterPanier():
     id_Client = request.json['id_client']
     id_Product = request.json['id_product']
-    new_panier = Panier(id_Client=id_Client,id_Product=id_Product)
+    qte = request.json['qte']
+    new_panier = Panier(id_Client=id_Client,id_Product=id_Product,qte=qte)
     db.session.add(new_panier)
     db.session.commit()
     return {"results": "ok"}
@@ -147,15 +148,24 @@ def getProduitFromPanier(id):
 
 @app.route('/getTotalPrix/<id>',methods=['GET'])
 def getTotalPrixPanier(id):
-    requet = ProductModel.query.join(Panier).filter_by(id_Client=id).all()
+    requet = Panier.query.filter_by(id_Client=id).all()
     totalPrice = 0
     for i in requet:
-        totalPrice+=i.price*i.qty
-    return {'total':str(totalPrice)}    
+        produit=ProductModel.query.filter_by(id=i.id_Product).first()
+        totalPrice+=i.qte*produit.price
+    return {'total':str(totalPrice)}  
 
-@app.route('/deleteProductFromPanier/<id>',methods=['DELETE'])
-def deleteProductFromPanier(id):
-    panier = Panier.query.get(id)
+@app.route('/getQte/<id>')  
+def getQte(id):
+    qte = Panier.query.filter_by(id_Client=id).all()
+    nbrQte = 0
+    for i in qte:
+        nbrQte+=i.qte
+    return {'total':str(nbrQte)}  
+
+@app.route('/deleteProductFromPanier/<id>/<idp>',methods=['DELETE'])
+def deleteProductFromPanier(id,idp):
+    panier=Panier.query.filter_by(id_Client=id,id_Product=idp).first()
     db.session.delete(panier)
     db.session.commit()
     return {"results":'deleted'}
@@ -242,4 +252,4 @@ def delete(id):
 
 
 if __name__ == '__main__':
-    app.run(host='192.168.1.117', debug=True)
+    app.run(host='192.168.1.232', debug=True)
