@@ -126,6 +126,8 @@ def getAllClients():
     result = clients_schema.dump(Clients)
     return jsonify(result)
 
+ 
+
 @app.route('/ajoutePanier',methods=['POST'])
 def ajouterPanier():
     id_Client = request.json['id_client']
@@ -229,7 +231,10 @@ def update(id):
 @app.route('/')
 def RetrieveList():
     products = ProductModel.query.all()
-    return render_template('listeproduit.html', products=products)
+    nbrClints = Client.query.count()
+    nbrProduits = ProductModel.query.count()
+    return render_template('listeproduit.html', products=products,nbrClints=nbrClints,nbrProduits=nbrProduits)
+
 
 
 @app.route('/products', methods=['GET'])
