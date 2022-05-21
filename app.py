@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 import os
 
+from sqlalchemy import null
+
 # INIT
 app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -173,7 +175,6 @@ def create():
         return render_template('createpage.html')
 
     if request.method == 'POST':
-
         name = request.form['name']
         description = request.form['description']
         price = request.form['price']
@@ -192,40 +193,25 @@ def create():
         db.session.commit()
         return redirect('/')
 
-
-
-
-
-
 @app.route('/<int:id>/edit',methods = ['GET','POST'])
 def update(id):
     products = ProductModel.query.filter_by(id=id).first()
-
-  
     if request.method == 'POST':
         if products:
-            db.session.delete(products)
-            db.session.commit()
-
             name = request.form['name']
             description = request.form['description']
             price = request.form['price']
             qty = request.form['qty']
             category = request.form['category']
             img = request.form['img']
-            products = ProductModel(
-                name=name,
-                description=description,
-                price=price,
-                qty=qty,
-                img=img,
-                category=category
-            )
-        db.session.add(products)
+            products.name=name
+            products.description=description
+            products.price=price
+            products.qty=qty
+            products.category=category
+            products.img=img
         db.session.commit()
         return redirect('/')
-        return f"Student with id = {id} Does nit exist"
- 
     return render_template('editpage.html', products = products)
 
 @app.route('/')
@@ -234,7 +220,6 @@ def RetrieveList():
     nbrClints = Client.query.count()
     nbrProduits = ProductModel.query.count()
     return render_template('listeproduit.html', products=products,nbrClints=nbrClints,nbrProduits=nbrProduits)
-
 
 
 @app.route('/products', methods=['GET'])
