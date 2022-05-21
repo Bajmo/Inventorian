@@ -104,7 +104,7 @@
       {% for product in products %} <tr {% if loop.index %2==0 %}
       style="background-color: rgb(255, 255, 255);" {% else %}
       style="background-color: rgb(255, 255, 255);" {% endif %} >
-      <td>{{ loop.index }}</td>
+      <td>{{ product.id }}</td>
       <td height="100" width="100">
         <img src="{{product.img}}" alt="" height="100" width="100" />
       </td>
