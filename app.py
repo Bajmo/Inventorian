@@ -1,4 +1,3 @@
-from itertools import product
 from flask import Flask, jsonify, render_template, redirect, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
@@ -25,6 +24,7 @@ class Client(db.Model):
     image = db.Column(db.String(300))
     numberPhone = db.Column(db.String(300))
     password = db.Column(db.String)
+    children = db.relationship('Panier',backref='Client')
 
     def __init__(self, nickname, mail, image, numberPhone, password):
         self.nickname = nickname
@@ -45,6 +45,7 @@ class ProductModel(db.Model):
     qty = db.Column(db.Integer)
     category = db.Column(db.String(100))
     img = db.Column(db.String(300))
+    children = db.relationship('Panier',backref='ProductModel')
 
     def _init_(self, name, description, price, qty, img, category):
         self.name = name
@@ -54,6 +55,18 @@ class ProductModel(db.Model):
         self.img = img
         self.category = category
 
+class Panier(db.Model):
+    id= db.Column(db.Integer, primary_key=True)
+    id_Client=db.Column(db.Integer, db.ForeignKey(Client.id)) 
+    id_Product=db.Column(db.Integer, db.ForeignKey(ProductModel.id)) 
+    qte=db.Column(db.Integer)
+
+    def _init_(self,id_Client,id_Product,qte):
+        self.id_Client=id_Client
+        self.id_Product=id_Product
+        self.qte=qte
+        
+        
 # SCHEMA
 
 
@@ -67,6 +80,9 @@ class ProductModelSchema(ma.Schema):
         fields = ('id', 'name', 'description',
                   'price', 'qty', 'img', 'category')
 
+class PanierSchema(ma.Schema):
+    class Meta:
+        fields = ('id','id_Client','id_Product','qte')
 
 # INIT SCHEMA
 client_schema = ClientSchema()
@@ -74,6 +90,9 @@ clients_schema = ClientSchema(many=True)
 
 product_schema = ProductModelSchema()
 products_schema = ProductModelSchema(many=True)
+
+panier_schema = PanierSchema()
+paniers_schema = PanierSchema(many=True)
 
 
 @app.route('/add_client', methods=['POST'])
@@ -106,6 +125,42 @@ def getAllClients():
     Clients = Client.query.all()
     result = clients_schema.dump(Clients)
     return jsonify(result)
+
+@app.route('/ajoutePanier',methods=['POST'])
+def ajouterPanier():
+    id_Client = request.json['id_client']
+    id_Product = request.json['id_product']
+    new_panier = Panier(id_Client=id_Client,id_Product=id_Product)
+    db.session.add(new_panier)
+    db.session.commit()
+    return {"results": "ok"}
+
+@app.route('/getProduitFromPanier/<id>',methods=['GET'])
+def getProduitFromPanier(id):
+    requet=ProductModel.query.join(Panier).filter_by(id_Client=id).all()
+    rs=products_schema.dump(requet)
+    return jsonify(rs)
+
+@app.route('/getTotalPrix/<id>',methods=['GET'])
+def getTotalPrixPanier(id):
+    requet = ProductModel.query.join(Panier).filter_by(id_Client=id).all()
+    totalPrice = 0
+    for i in requet:
+        totalPrice+=i.price*i.qty
+    return {'total':str(totalPrice)}    
+
+@app.route('/deleteProductFromPanier/<id>',methods=['DELETE'])
+def deleteProductFromPanier(id):
+    panier = Panier.query.get(id)
+    db.session.delete(panier)
+    db.session.commit()
+    return {"results":'deleted'}
+
+
+    
+
+
+
 
 # WEB
 
@@ -144,22 +199,12 @@ def create():
 def update(id):
     products = ProductModel.query.filter_by(id=id).first()
 
-    #hobbies = student.hobbies.split(' ')
-    # print(hobbies)
+  
     if request.method == 'POST':
         if products:
             db.session.delete(products)
             db.session.commit()
-    #     tv = request.form['tv']    
-    #     if tv is None:
-    #               pass
 
-    #    # print('Form:' + str(request.form))    
-      
-    #     cricket = request.form['cricket']
-    #     movies = request.form['movies']
-    #     hobbies = tv + ' ' +  cricket + ' ' + movies
-    #     print('H' + hobbies)
             name = request.form['name']
             description = request.form['description']
             price = request.form['price']
@@ -180,17 +225,6 @@ def update(id):
         return f"Student with id = {id} Does nit exist"
  
     return render_template('editpage.html', products = products)
-
-
-
-
-
-
-
-
-
-
-
 
 @app.route('/')
 def RetrieveList():
@@ -218,4 +252,4 @@ def delete(id):
 
 
 if __name__ == '__main__':
-    app.run(host='localhost', debug=True)
+    app.run(host='192.168.1.117', debug=True)
