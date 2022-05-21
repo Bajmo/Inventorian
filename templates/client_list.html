@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% include 'header.html' %}
+{% block title %} Item list {% endblock %}
+{% block body %}
+
+
+<div class="main-content mr-md-auto">
+    <div class="header bg-gradient-primary">
+
+        <div class="container pb-8 pt-5 pt-md-8">
+            <table class="table table-bordered">
+                <thead style="background-color: rgb(193, 122, 222); color: aliceblue">
+                    <th>ID</th>
+                    <th>Image</th>
+                    <th>Nom</th>
+                    <th>Email</th>
+                    <th>Telephone</th>
+                    <th>Actions</th>
+                </thead>
+
+                <tbody>
+                    {% for client in clients %} <tr {% if loop.index %2==0 %}
+                        style="background-color: rgb(255, 255, 255);" {% else %}
+                        style="background-color: rgb(255, 255, 255);" {% endif %}>
+                        <td>{{client.id}}</td>
+                        <td height="100" width="100">
+                            <img src="{{client.image}}" alt="" height="100" width="100" />
+                        </td>
+                        <td>{{client.nickname}}</td>
+                        <td>{{client.mail}}</td>
+                        <td>{{client.numberPhone}}</td>
+                        <td>
+     
+                            <span style="font-size: 24px; color: red">
+                              <a href="/{{client.id}}/delete_client"> <i class="fas fa-trash-alt"></i></a
+                            ></span>
+                          </td>
+                        {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+
+
+
+
+
+        {% endblock %}
