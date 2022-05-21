@@ -49,7 +49,6 @@ class ProductModel(db.Model):
     category = db.Column(db.String(100))
     img = db.Column(db.String(300))
     children = db.relationship('Panier',backref='ProductModel')
-    children = db.relationship('Commande',backref='ProductModel')
 
     def _init_(self, name, description, price, qty, img, category):
         self.name = name
@@ -78,6 +77,7 @@ class Commande(db.Model):
     adresseCommande =db.Column(db.String(100))
     TotalPrix=db.Column(db.Float) 
     status=db.Column(db.String(100))
+    children = db.relationship('DetailCommande',backref='Commande')
 
     def _ini_(self,id_Client,dateComande,adresseCommande,TotalPrix,status):
         self.id_Client=id_Client
