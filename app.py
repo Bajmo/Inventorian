@@ -2,7 +2,6 @@ from flask import Flask, jsonify, render_template, redirect, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 import os
-
 from sqlalchemy import null
 
 # INIT
@@ -27,6 +26,8 @@ class Client(db.Model):
     numberPhone = db.Column(db.String(300))
     password = db.Column(db.String)
     children = db.relationship('Panier',backref='Client')
+    children2 = db.relationship('Commande',backref='Client')
+    
 
     def __init__(self, nickname, mail, image, numberPhone, password):
         self.nickname = nickname
@@ -48,6 +49,7 @@ class ProductModel(db.Model):
     category = db.Column(db.String(100))
     img = db.Column(db.String(300))
     children = db.relationship('Panier',backref='ProductModel')
+    children = db.relationship('Commande',backref='ProductModel')
 
     def _init_(self, name, description, price, qty, img, category):
         self.name = name
@@ -62,13 +64,29 @@ class Panier(db.Model):
     id_Client=db.Column(db.Integer, db.ForeignKey(Client.id)) 
     id_Product=db.Column(db.Integer, db.ForeignKey(ProductModel.id)) 
     qte=db.Column(db.Integer)
+    
 
     def _init_(self,id_Client,id_Product,qte):
         self.id_Client=id_Client
         self.id_Product=id_Product
         self.qte=qte
         
+class Commande(db.Model):
+    id= db.Column(db.Integer, primary_key=True)
+    id_Client=db.Column(db.Integer, db.ForeignKey(Client.id)) 
+    id_Product=db.Column(db.Integer, db.ForeignKey(ProductModel.id)) 
+    dateComande=db.Column(db.String(100))
+    TotalPrix=db.Column(db.Float) 
+
+    def _ini_(self,id_Client,id_Product,dateComande,TotalPrix):
+        self.id_Client=id_Client
+        self.id_Product=id_Product
+        self.dateComande=dateComande
+        self.TotalPrix=TotalPrix
         
+
+    
+
 # SCHEMA
 
 
@@ -86,6 +104,10 @@ class PanierSchema(ma.Schema):
     class Meta:
         fields = ('id','id_Client','id_Product','qte')
 
+class CommandeSchema(ma.Schema):
+    class Meta:
+        fields = ('id','id_Client','id_Product','TotalPrix','dateComande')
+
 # INIT SCHEMA
 client_schema = ClientSchema()
 clients_schema = ClientSchema(many=True)
@@ -95,6 +117,9 @@ products_schema = ProductModelSchema(many=True)
 
 panier_schema = PanierSchema()
 paniers_schema = PanierSchema(many=True)
+
+commande_schema = CommandeSchema()
+commandes_schema = CommandeSchema(many=True)
 
 
 @app.route('/add_client', methods=['POST'])
@@ -170,10 +195,16 @@ def deleteProductFromPanier(id,idp):
     db.session.commit()
     return {"results":'deleted'}
 
-
-    
-
-
+@app.route('/ajouteCommande',methods=['POST'])
+def ajouterCommande():
+    id_Client = request.json['id_Client']
+    id_Product = request.json['id_Product']
+    TotalPrix = request.json['TotalPrix']
+    dateComande = request.json['dateComande']
+    new_commande = Commande(id_Client=id_Client,id_Product=id_Product,TotalPrix=TotalPrix,dateComande=dateComande)
+    db.session.add(new_commande)
+    db.session.commit()
+    return {"results": "ok"}    
 
 
 # WEB
