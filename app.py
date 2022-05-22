@@ -159,6 +159,13 @@ def add_client():
     return {"results": "ok"}
 
 
+@app.route('/products', methods=['GET'])
+def getAllProduct():
+    products = ProductModel.query.all()
+    result = products_schema.dump(products)
+    return jsonify(result)
+
+
 @app.route('/login', methods=['POST'])
 def login():
     nickname = request.json['nickname']
@@ -372,15 +379,6 @@ def refuser_commande(id):
     commande.status = status
     db.session.commit()
     return redirect('/liste_commandes')
-
-
-#
-@app.route('/products', methods=['GET'])
-def getAllProduct():
-    products = ProductModel.query.all()
-    result = products_schema.dump(products)
-    return jsonify(result)
-#
 
 
 # Initialisation de l'application "app"
