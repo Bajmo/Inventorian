@@ -49,6 +49,7 @@ class ProductModel(db.Model):
     category = db.Column(db.String(100))
     img = db.Column(db.String(300))
     children = db.relationship('Panier',backref='ProductModel')
+    children2 = db.relationship('DetailCommande',backref='ProductModel')
 
     def _init_(self, name, description, price, qty, img, category):
         self.name = name
@@ -89,11 +90,13 @@ class Commande(db.Model):
 class DetailCommande(db.Model):
     id= db.Column(db.Integer, primary_key=True)
     id_Comande=db.Column(db.Integer, db.ForeignKey(Commande.id)) 
+    id_product=db.Column(db.Integer, db.ForeignKey(ProductModel.id)) 
     prix_unitaire=db.Column(db.Float)
     qty_unitaire=db.Column(db.Integer)
 
-    def _ini_(self,id_Comande,prix_unitaire,qty_unitaire):
+    def _ini_(self,id_Comande,id_product,prix_unitaire,qty_unitaire):
         self.id_Comande=id_Comande
+        self.id_product=id_product
         self.prix_unitaire=prix_unitaire
         self.qty_unitaire=qty_unitaire
          
@@ -123,7 +126,7 @@ class CommandeSchema(ma.Schema):
 
 class DetailCommandeSchema(ma.Schema):
     class Meta:
-        fields = ('id','id_Comande','prix_unitaire','qty_unitaire')
+        fields = ('id','id_Comande','id_product','prix_unitaire','qty_unitaire')
 
 # INIT SCHEMA
 client_schema = ClientSchema()
@@ -227,13 +230,18 @@ def ajouterCommande():
     new_commande = Commande(id_Client=id_Client,TotalPrix=TotalPrix,dateComande=dateComande,adresseCommande=adresseCommande,status=status)
     db.session.add(new_commande)
     db.session.commit()
+    return {"results": str(new_commande.id)} 
+
+@app.route('/ajouteDetailCommande',methods=['POST'])
+def ajouteDetailCommande():
+    ## fields = ('id','id_Client','TotalPrix','dateComande','adresseCommande','status')
+    id_Comande = request.json['id_Comande']
+    prix_unitaire = request.json['prix_unitaire']
+    qty_unitaire = request.json['qty_unitaire']
+    new_commande = DetailCommande(id_Comande=id_Comande,prix_unitaire=prix_unitaire,qty_unitaire=qty_unitaire)
+    db.session.add(new_commande)
+    db.session.commit()
     return {"results": "ok"} 
-
-@app.route('/getIdCommande/<id>/<date>',methods=['GET'])    
-def getIdCommande(id,date):
-    idComande=Commande.query.filter_by(id_Client=id,dateComande=date).first()
-    return {"id":str(idComande.id)}
-
 
        
 
