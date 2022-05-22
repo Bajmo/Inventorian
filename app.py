@@ -1,23 +1,27 @@
 from flask import Flask, jsonify, render_template, redirect, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-import os
 from sqlalchemy import null
+import os
 
-# INIT
+
+# Définition de l'application "app"
 app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-# DATABASE
+
+# Définition de la base de données "db"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + \
     os.path.join(basedir, 'db.sqlite')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# INIT DB
+
+# Initialisation de la base de données "db"
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
 
+# Création des classes
 class Client(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nickname = db.Column(db.String(100), unique=True)
@@ -25,9 +29,8 @@ class Client(db.Model):
     image = db.Column(db.String(300))
     numberPhone = db.Column(db.String(300))
     password = db.Column(db.String)
-    children = db.relationship('Panier',backref='Client')
-    children2 = db.relationship('Commande',backref='Client')
-    
+    children = db.relationship('Panier', backref='Client')
+    children2 = db.relationship('Commande', backref='Client')
 
     def __init__(self, nickname, mail, image, numberPhone, password):
         self.nickname = nickname
@@ -48,7 +51,7 @@ class ProductModel(db.Model):
     qty = db.Column(db.Integer)
     category = db.Column(db.String(100))
     img = db.Column(db.String(300))
-    children = db.relationship('Panier',backref='ProductModel')
+    children = db.relationship('Panier', backref='ProductModel')
 
     def _init_(self, name, description, price, qty, img, category):
         self.name = name
@@ -58,50 +61,46 @@ class ProductModel(db.Model):
         self.img = img
         self.category = category
 
+
 class Panier(db.Model):
-    id= db.Column(db.Integer, primary_key=True)
-    id_Client=db.Column(db.Integer, db.ForeignKey(Client.id)) 
-    id_Product=db.Column(db.Integer, db.ForeignKey(ProductModel.id)) 
-    product_name=db.Column(db.Text)
-    product_image=db.Column(db.Text)
-    product_price=db.Column(db.Float)
-    qte=db.Column(db.Integer)
-    
+    id = db.Column(db.Integer, primary_key=True)
+    id_Client = db.Column(db.Integer, db.ForeignKey(Client.id))
+    id_Product = db.Column(db.Integer, db.ForeignKey(ProductModel.id))
+    product_name = db.Column(db.Text)
+    product_image = db.Column(db.Text)
+    product_price = db.Column(db.Float)
+    qte = db.Column(db.Integer)
 
-    def _init_(self,id_Client,id_Product,product_name,product_image,product_price,qte):
-        self.id_Client=id_Client
-        self.id_Product=id_Product
-        self.product_name=product_name
-        self.product_image=product_image
-        self.product_price=product_price
-        self.qte=qte
-        
+    def _init_(self, id_Client, id_Product, product_name, product_image, product_price, qte):
+        self.id_Client = id_Client
+        self.id_Product = id_Product
+        self.product_name = product_name
+        self.product_image = product_image
+        self.product_price = product_price
+        self.qte = qte
+
+
 class Commande(db.Model):
-    id= db.Column(db.Integer, primary_key=True)
-    id_Client=db.Column(db.Integer, db.ForeignKey(Client.id)) 
-    dateComande=db.Column(db.String(100))
-    adresseCommande =db.Column(db.String(100))
-    TotalPrix=db.Column(db.Float) 
-    liste_product=db.Column(db.Text)
-    paiment_method=db.Column(db.String(100))
-    status=db.Column(db.String(100))
+    id = db.Column(db.Integer, primary_key=True)
+    id_Client = db.Column(db.Integer, db.ForeignKey(Client.id))
+    dateComande = db.Column(db.String(100))
+    adresseCommande = db.Column(db.String(100))
+    TotalPrix = db.Column(db.Float)
+    liste_product = db.Column(db.Text)
+    paiment_method = db.Column(db.String(100))
+    status = db.Column(db.String(100))
 
-    def _ini_(self,id_Client,dateComande,adresseCommande,TotalPrix,liste_product,paiment_method,status):
-        self.id_Client=id_Client
-        self.dateComande=dateComande
-        self.adresseCommande=adresseCommande
-        self.TotalPrix=TotalPrix
-        self.liste_product=liste_product
-        self.paiment_method=paiment_method
-        self.status=status
-
-         
-
-    
-
-# SCHEMA
+    def _ini_(self, id_Client, dateComande, adresseCommande, TotalPrix, liste_product, paiment_method, status):
+        self.id_Client = id_Client
+        self.dateComande = dateComande
+        self.adresseCommande = adresseCommande
+        self.TotalPrix = TotalPrix
+        self.liste_product = liste_product
+        self.paiment_method = paiment_method
+        self.status = status
 
 
+# Création des schémas
 class ClientSchema(ma.Schema):
     class Meta:
         fields = ('id', 'nickname', 'mail', 'image', 'numberPhone', 'password')
@@ -112,23 +111,26 @@ class ProductModelSchema(ma.Schema):
         fields = ('id', 'name', 'description',
                   'price', 'qty', 'img', 'category')
 
+
 class PanierSchema(ma.Schema):
     class Meta:
         fields = ('id',
-        'id_Client',
-        'id_Product',
-        'product_name',
-        'product_image',
-        'product_price',
-        'qte')
+                  'id_Client',
+                  'id_Product',
+                  'product_name',
+                  'product_image',
+                  'product_price',
+                  'qte')
+
 
 class CommandeSchema(ma.Schema):
     class Meta:
-        fields = ('id','id_Client',
-        'dateComande','adresseCommande','TotalPrix','liste_product',
-        'paiment_method','status')
+        fields = ('id', 'id_Client',
+                  'dateComande', 'adresseCommande', 'TotalPrix', 'liste_product',
+                  'paiment_method', 'status')
 
-# INIT SCHEMA
+
+# Initialisation des schémas
 client_schema = ClientSchema()
 clients_schema = ClientSchema(many=True)
 
@@ -141,6 +143,8 @@ paniers_schema = PanierSchema(many=True)
 commande_schema = CommandeSchema()
 commandes_schema = CommandeSchema(many=True)
 
+
+# Définition des routes: MOBILE
 @app.route('/add_client', methods=['POST'])
 def add_client():
     nickname = request.json['nickname']
@@ -172,43 +176,47 @@ def getAllClients():
     result = clients_schema.dump(Clients)
     return jsonify(result)
 
- 
 
-@app.route('/ajoutePanier',methods=['POST'])
+@app.route('/ajoutePanier', methods=['POST'])
 def ajouterPanier():
     id_Client = request.json['id_client']
     id_Product = request.json['id_product']
     product_name = request.json['product_name']
-    product_image=request.json['product_image']
-    product_price=request.json['product_price']
+    product_image = request.json['product_image']
+    product_price = request.json['product_price']
     qte = request.json['qte']
-    new_panier = Panier(id_Client=id_Client,id_Product=id_Product,product_name=product_name,product_image=product_image,product_price=product_price,qte=qte)
+    new_panier = Panier(id_Client=id_Client, id_Product=id_Product, product_name=product_name,
+                        product_image=product_image, product_price=product_price, qte=qte)
     db.session.add(new_panier)
     db.session.commit()
     return {"results": "ok"}
 
-@app.route('/getPanierItems/<id>',methods=['GET'])
+
+@app.route('/getPanierItems/<id>', methods=['GET'])
 def getPanierItems(id):
-    requet=Panier.query.filter_by(id_Client=id).all()
-    rs=paniers_schema.dump(requet)
+    requet = Panier.query.filter_by(id_Client=id).all()
+    rs = paniers_schema.dump(requet)
     return jsonify(rs)
 
-@app.route('/getTotalPrix/<id>',methods=['GET'])
+
+@app.route('/getTotalPrix/<id>', methods=['GET'])
 def getTotalPrixPanier(id):
     requet = Panier.query.filter_by(id_Client=id).all()
     totalPrice = 0
     for i in requet:
-        produit=ProductModel.query.filter_by(id=i.id_Product).first()
-        totalPrice+=i.qte*produit.price
-    return {'total':str(totalPrice)}  
+        produit = ProductModel.query.filter_by(id=i.id_Product).first()
+        totalPrice += i.qte*produit.price
+    return {'total': str(totalPrice)}
 
-@app.route('/getQte/<id>')  
+
+@app.route('/getQte/<id>')
 def getQte(id):
     qte = Panier.query.filter_by(id_Client=id).all()
     nbrQte = 0
     for i in qte:
-        nbrQte+=i.qte
-    return {'total':str(nbrQte)}  
+        nbrQte += i.qte
+    return {'total': str(nbrQte)}
+
 
 @app.route('/getPanierProductQte/<id>')
 def getPanierProductQte(id):
@@ -217,36 +225,58 @@ def getPanierProductQte(id):
     return jsonify(panier)
 
 
-
-@app.route('/deleteProductFromPanier/<id>/<idp>',methods=['DELETE'])
-def deleteProductFromPanier(id,idp):
-    panier=Panier.query.filter_by(id_Client=id,id_Product=idp).first()
+@app.route('/deleteProductFromPanier/<id>/<idp>', methods=['DELETE'])
+def deleteProductFromPanier(id, idp):
+    panier = Panier.query.filter_by(id_Client=id, id_Product=idp).first()
     db.session.delete(panier)
     db.session.commit()
-    return {"results":'deleted'}
+    return {"results": 'deleted'}
 
-@app.route('/ajouteCommande',methods=['POST'])
+
+@app.route('/ajouteCommande', methods=['POST'])
 def ajouterCommande():
-    ## fields = ('id','id_Client','TotalPrix','dateComande','adresseCommande','status')
+
     id_Client = request.json['id_Client']
-    TotalPrix = request.json['TotalPrix']
     dateComande = request.json['dateComande']
     adresseCommande = request.json['adresseCommande']
-    status=request.json['status']
-    new_commande = Commande(id_Client=id_Client,TotalPrix=TotalPrix,dateComande=dateComande,adresseCommande=adresseCommande,status=status)
+    TotalPrix = request.json['TotalPrix']
+    liste_product = request.json['liste_product']
+    paiment_method = request.json['paiment_method']
+    status = request.json['status']
+    new_commande = Commande(id_Client=id_Client, dateComande=dateComande, adresseCommande=adresseCommande,
+                            TotalPrix=TotalPrix, liste_product=liste_product, paiment_method=paiment_method, status=status)
     db.session.add(new_commande)
     db.session.commit()
-    return {"results": str(new_commande.id)} 
-       
+    return {"results": str(new_commande.id)}
 
 
-# WEB
+# Définition des routes: WEB
+@app.route('/')
+def liste_produits():
+    products = ProductModel.query.all()
+    nbrCommandes = Commande.query.count()
+    nbrCommandesConfirmees = Commande.query.filter_by(status="Acceptée!").count()
+    nbrClients = Client.query.count()
+    nbrProduits = ProductModel.query.count()
+    return render_template('liste_produits.html', products=products, nbrCommandes=nbrCommandes, nbrClients=nbrClients, nbrProduits=nbrProduits, nbrCommandesConfirmees=nbrCommandesConfirmees)
+
+@app.route('/liste_commandes', methods=['GET'])
+def liste_commandes():
+    commandes = Commande.query.all()
+    commandesFinalisees = Commande.query.filter_by(status="Acceptée!").all()
+    return render_template('liste_commandes.html', commandes=commandes, commandesFinalisees=commandesFinalisees)
 
 
-@app.route('/create', methods=['GET', 'POST'])
-def create():
+@app.route('/liste_clients')
+def liste_clients():
+    clients = Client.query.all()
+    return render_template('liste_clients.html', clients=clients)    
+
+
+@app.route('/page_ajout', methods=['GET', 'POST'])
+def page_ajout():
     if request.method == 'GET':
-        return render_template('createpage.html')
+        return render_template('page_ajout.html')
 
     if request.method == 'POST':
         name = request.form['name']
@@ -267,8 +297,9 @@ def create():
         db.session.commit()
         return redirect('/')
 
-@app.route('/<int:id>/edit',methods = ['GET','POST'])
-def update(id):
+
+@app.route('/<int:id>/page_modification', methods=['GET', 'POST'])
+def page_modification(id):
     products = ProductModel.query.filter_by(id=id).first()
     if request.method == 'POST':
         if products:
@@ -278,34 +309,19 @@ def update(id):
             qty = request.form['qty']
             category = request.form['category']
             img = request.form['img']
-            products.name=name
-            products.description=description
-            products.price=price
-            products.qty=qty
-            products.category=category
-            products.img=img
+            products.name = name
+            products.description = description
+            products.price = price
+            products.qty = qty
+            products.category = category
+            products.img = img
         db.session.commit()
         return redirect('/')
-    return render_template('editpage.html', products = products)
-
-@app.route('/')
-def RetrieveList():
-    products = ProductModel.query.all()
-    nbrCommandes = Commande.query.count()
-    nbrClients = Client.query.count()
-    nbrProduits = ProductModel.query.count()
-    return render_template('listeproduit.html', products=products,nbrCommandes=nbrCommandes,nbrClients=nbrClients,nbrProduits=nbrProduits)
+    return render_template('page_modification.html', products=products)
 
 
-@app.route('/products', methods=['GET'])
-def getAllProduct():
-    products = ProductModel.query.all()
-    result = products_schema.dump(products)
-    return jsonify(result)
-
-
-@app.route('/<int:id>/delete', methods=['GET', 'POST'])
-def delete(id):
+@app.route('/<int:id>/supprimer_produit', methods=['GET', 'POST'])
+def supprimer_produit(id):
     products = ProductModel.query.filter_by(id=id).first()
     if request.method == 'POST':
         if products:
@@ -313,44 +329,60 @@ def delete(id):
             db.session.commit()
             return redirect('/')
 
-    return render_template('delete.html')
+    return render_template('supprimer_produit.html')
 
 
-@app.route('/<int:id>/delete_client', methods=['GET', 'POST'])
-def delete_client(id):
+@app.route('/<int:id>/supprimer_client', methods=['GET', 'POST'])
+def supprimer_client(id):
     clients = Client.query.filter_by(id=id).first()
     if request.method == 'POST':
         if clients:
             db.session.delete(clients)
             db.session.commit()
-            return redirect('/client_list')
+            return redirect('/liste_clients')
 
-    return render_template('delete_client.html')
+    return render_template('supprimer_client.html')
 
-
-@app.route('/client_list')
-def client_list():
-    clients = Client.query.all()
-    return render_template('client_list.html', clients=clients)
-
-
-@app.route('/order_list', methods=['GET'])
-def order_list():
-    commandes = Commande.query.all()
-    return render_template('order_list.html', commandes=commandes)
 
 @app.route('/<int:id>/details_article', methods=['GET'])
 def details_article(id):
     product = ProductModel.query.filter_by(id=id).first()
-    return render_template('details_article.html', product = product)
+    return render_template('details_article.html', product=product)
 
 
 @app.route('/<int:id>/details_client', methods=['GET'])
 def details_client(id):
     client = Client.query.filter_by(id=id).first()
-    return render_template('details_client.html', client = client)
+    return render_template('details_client.html', client=client)
 
 
+@app.route('/<int:id>/accepter_commande', methods=['POST'])
+def accepter_commande(id):
+    commande = Commande.query.filter_by(id=id).first()
+    status = "Acceptée!"
+    commande.status = status
+    db.session.commit()
+    return redirect('/liste_commandes')
 
+
+@app.route('/<int:id>/refuser_commande', methods=['POST'])
+def refuser_commande(id):
+    commande = Commande.query.filter_by(id=id).first()
+    status = "Rejetée!"
+    commande.status = status
+    db.session.commit()
+    return redirect('/liste_commandes')
+
+
+#
+@app.route('/products', methods=['GET'])
+def getAllProduct():
+    products = ProductModel.query.all()
+    result = products_schema.dump(products)
+    return jsonify(result)
+#
+
+
+# Initialisation de l'application "app"
 if __name__ == '__main__':
-    app.run(host='192.168.1.117', debug=True)
+    app.run(host='localhost', debug=True)
