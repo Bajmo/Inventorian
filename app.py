@@ -49,7 +49,6 @@ class ProductModel(db.Model):
     category = db.Column(db.String(100))
     img = db.Column(db.String(300))
     children = db.relationship('Panier',backref='ProductModel')
-    children2 = db.relationship('DetailCommande',backref='ProductModel')
 
     def _init_(self, name, description, price, qty, img, category):
         self.name = name
@@ -63,12 +62,18 @@ class Panier(db.Model):
     id= db.Column(db.Integer, primary_key=True)
     id_Client=db.Column(db.Integer, db.ForeignKey(Client.id)) 
     id_Product=db.Column(db.Integer, db.ForeignKey(ProductModel.id)) 
+    product_name=db.Column(db.Text)
+    product_image=db.Column(db.Text)
+    product_price=db.Column(db.Float)
     qte=db.Column(db.Integer)
     
 
-    def _init_(self,id_Client,id_Product,qte):
+    def _init_(self,id_Client,id_Product,product_name,product_image,product_price,qte):
         self.id_Client=id_Client
         self.id_Product=id_Product
+        self.product_name=product_name
+        self.product_image=product_image
+        self.product_price=product_price
         self.qte=qte
         
 class Commande(db.Model):
@@ -77,28 +82,19 @@ class Commande(db.Model):
     dateComande=db.Column(db.String(100))
     adresseCommande =db.Column(db.String(100))
     TotalPrix=db.Column(db.Float) 
+    liste_product=db.Column(db.Text)
+    paiment_method=db.Column(db.String(100))
     status=db.Column(db.String(100))
-    children = db.relationship('DetailCommande',backref='Commande')
 
-    def _ini_(self,id_Client,dateComande,adresseCommande,TotalPrix,status):
+    def _ini_(self,id_Client,dateComande,adresseCommande,TotalPrix,liste_product,paiment_method,status):
         self.id_Client=id_Client
         self.dateComande=dateComande
         self.adresseCommande=adresseCommande
         self.TotalPrix=TotalPrix
+        self.liste_product=liste_product
+        self.paiment_method=paiment_method
         self.status=status
 
-class DetailCommande(db.Model):
-    id= db.Column(db.Integer, primary_key=True)
-    id_Comande=db.Column(db.Integer, db.ForeignKey(Commande.id)) 
-    id_product=db.Column(db.Integer, db.ForeignKey(ProductModel.id)) 
-    prix_unitaire=db.Column(db.Float)
-    qty_unitaire=db.Column(db.Integer)
-
-    def _ini_(self,id_Comande,id_product,prix_unitaire,qty_unitaire):
-        self.id_Comande=id_Comande
-        self.id_product=id_product
-        self.prix_unitaire=prix_unitaire
-        self.qty_unitaire=qty_unitaire
          
 
     
@@ -118,15 +114,19 @@ class ProductModelSchema(ma.Schema):
 
 class PanierSchema(ma.Schema):
     class Meta:
-        fields = ('id','id_Client','id_Product','qte')
+        fields = ('id',
+        'id_Client',
+        'id_Product',
+        'product_name',
+        'product_image',
+        'product_price',
+        'qte')
 
 class CommandeSchema(ma.Schema):
     class Meta:
-        fields = ('id','id_Client','TotalPrix','dateComande','adresseCommande','status')
-
-class DetailCommandeSchema(ma.Schema):
-    class Meta:
-        fields = ('id','id_Comande','id_product','prix_unitaire','qty_unitaire')
+        fields = ('id','id_Client',
+        'dateComande','adresseCommande','TotalPrix','liste_product',
+        'paiment_method','status')
 
 # INIT SCHEMA
 client_schema = ClientSchema()
@@ -140,11 +140,6 @@ paniers_schema = PanierSchema(many=True)
 
 commande_schema = CommandeSchema()
 commandes_schema = CommandeSchema(many=True)
-
-
-detailComande_schema = DetailCommandeSchema()
-detailComandes_schema = DetailCommandeSchema(many=True)
-
 
 @app.route('/add_client', methods=['POST'])
 def add_client():
@@ -183,16 +178,19 @@ def getAllClients():
 def ajouterPanier():
     id_Client = request.json['id_client']
     id_Product = request.json['id_product']
+    product_name = request.json['product_name']
+    product_image=request.json['product_image']
+    product_price=request.json['product_price']
     qte = request.json['qte']
-    new_panier = Panier(id_Client=id_Client,id_Product=id_Product,qte=qte)
+    new_panier = Panier(id_Client=id_Client,id_Product=id_Product,product_name=product_name,product_image=product_image,product_price=product_price,qte=qte)
     db.session.add(new_panier)
     db.session.commit()
     return {"results": "ok"}
 
-@app.route('/getProduitFromPanier/<id>',methods=['GET'])
-def getProduitFromPanier(id):
-    requet=ProductModel.query.join(Panier).filter_by(id_Client=id).all()
-    rs=products_schema.dump(requet)
+@app.route('/getPanierItems/<id>',methods=['GET'])
+def getPanierItems(id):
+    requet=Panier.query.filter_by(id_Client=id).all()
+    rs=paniers_schema.dump(requet)
     return jsonify(rs)
 
 @app.route('/getTotalPrix/<id>',methods=['GET'])
@@ -211,6 +209,14 @@ def getQte(id):
     for i in qte:
         nbrQte+=i.qte
     return {'total':str(nbrQte)}  
+
+@app.route('/getPanierProductQte/<id>')
+def getPanierProductQte(id):
+    qte = Panier.query.filter_by(id_Client=id).all()
+    panier = paniers_schema.dump(qte)
+    return jsonify(panier)
+
+
 
 @app.route('/deleteProductFromPanier/<id>/<idp>',methods=['DELETE'])
 def deleteProductFromPanier(id,idp):
@@ -231,24 +237,7 @@ def ajouterCommande():
     db.session.add(new_commande)
     db.session.commit()
     return {"results": str(new_commande.id)} 
-
-
-@app.route('/ajouteDetailCommande',methods=['POST'])
-def ajouteDetailCommande():
-    ## fields = ('id','id_Client','TotalPrix','dateComande','adresseCommande','status')
-    id_Comande = request.json['id_Comande']
-    prix_unitaire = request.json['prix_unitaire']
-    qty_unitaire = request.json['qty_unitaire']
-    new_commande = DetailCommande(id_Comande=id_Comande,prix_unitaire=prix_unitaire,qty_unitaire=qty_unitaire)
-    db.session.add(new_commande)
-    db.session.commit()
-    return {"results": "ok"} 
-
-
-@app.route('/getIdCommande/<id>/<date>',methods=['GET'])    
-def getIdCommande(id,date):
-    idComande=Commande.query.filter_by(id_Client=id,dateComande=date).first()
-    return {"id":str(idComande.id)} 
+       
 
 
 # WEB
@@ -361,8 +350,7 @@ def details_client(id):
     client = Client.query.filter_by(id=id).first()
     return render_template('details_client.html', client = client)
 
-if __name__ == '__main__':
-    app.run(host='localhost', debug=True)
 
-#afficher commande
-#confirmer commande
+
+if __name__ == '__main__':
+    app.run(host='192.168.1.117', debug=True)
