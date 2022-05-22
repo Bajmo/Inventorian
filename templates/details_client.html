@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% include 'header.html' %}
-{% block title %}Inventorian | Liste Clients{% endblock %}
+{% block title %}Inventorian{% endblock %}
 {% block body %}
 <div class="main-content mr-md-auto">
     <div class="header bg-gradient-primary">
@@ -15,7 +15,6 @@
                     <th>Action</th>
                 </thead>
                 <tbody>
-                    {% for client in clients %}
                     <tr>
                         <td>{{client.id}}</td>
                         <td align="center">
@@ -31,7 +30,6 @@
                                 <i class="fa-solid fa-arrow-right-to-bracket"></i></a>
                         </td>
                     </tr>
-                    {% endfor %}
                 </tbody>
             </table>
         </div>

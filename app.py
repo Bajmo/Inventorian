@@ -232,6 +232,7 @@ def ajouterCommande():
     db.session.commit()
     return {"results": str(new_commande.id)} 
 
+
 @app.route('/ajouteDetailCommande',methods=['POST'])
 def ajouteDetailCommande():
     ## fields = ('id','id_Client','TotalPrix','dateComande','adresseCommande','status')
@@ -243,7 +244,11 @@ def ajouteDetailCommande():
     db.session.commit()
     return {"results": "ok"} 
 
-       
+
+@app.route('/getIdCommande/<id>/<date>',methods=['GET'])    
+def getIdCommande(id,date):
+    idComande=Commande.query.filter_by(id_Client=id,dateComande=date).first()
+    return {"id":str(idComande.id)} 
 
 
 # WEB
@@ -297,9 +302,10 @@ def update(id):
 @app.route('/')
 def RetrieveList():
     products = ProductModel.query.all()
-    nbrClints = Client.query.count()
+    nbrCommandes = Commande.query.count()
+    nbrClients = Client.query.count()
     nbrProduits = ProductModel.query.count()
-    return render_template('listeproduit.html', products=products,nbrClints=nbrClints,nbrProduits=nbrProduits)
+    return render_template('listeproduit.html', products=products,nbrCommandes=nbrCommandes,nbrClients=nbrClients,nbrProduits=nbrProduits)
 
 
 @app.route('/products', methods=['GET'])
@@ -321,5 +327,42 @@ def delete(id):
     return render_template('delete.html')
 
 
+@app.route('/<int:id>/delete_client', methods=['GET', 'POST'])
+def delete_client(id):
+    clients = Client.query.filter_by(id=id).first()
+    if request.method == 'POST':
+        if clients:
+            db.session.delete(clients)
+            db.session.commit()
+            return redirect('/')
+
+    return render_template('delete_client.html')
+
+
+@app.route('/client_list')
+def client_list():
+    clients = Client.query.all()
+    return render_template('client_list.html', clients=clients)
+
+
+@app.route('/order_list', methods=['GET'])
+def order_list():
+    commandes = Commande.query.all()
+    return render_template('order_list.html', commandes=commandes)
+
+@app.route('/<int:id>/details_article', methods=['GET'])
+def details_article(id):
+    product = ProductModel.query.filter_by(id=id).first()
+    return render_template('details_article.html', product = product)
+
+
+@app.route('/<int:id>/details_client', methods=['GET'])
+def details_client(id):
+    client = Client.query.filter_by(id=id).first()
+    return render_template('details_client.html', client = client)
+
 if __name__ == '__main__':
-    app.run(host='192.168.1.117', debug=True)
+    app.run(host='localhost', debug=True)
+
+#afficher commande
+#confirmer commande

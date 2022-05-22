@@ -1,31 +1,29 @@
 {% extends 'base.html' %}
 {% block body %}
-
 <div class="d-flex justify-content-center">
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <span class="navbar-brand">PFA</span>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav"
-      aria-expanded="false" aria-label="Toggle navigation">
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <span class="navbar-brand"><i class="fa-solid fa-database"></i></span>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
+      <ul class="navbar-nav align-items-center">
         <li class="nav-item">
-          <a class="nav-link active" href="/">ITEM LIST</a>
+          <a class="nav-link" href="/">ARTICLES</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/">ORDER LIST</a>
+          <a class="nav-link" href="/order_list">COMMANDES</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/">CLIENT LIST</a>
+          <a class="nav-link" href="/client_list">CLIENTS</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/create">ADD ITEM</a>
+          <a class="nav-link" href="/create"><button type="button" class="btn btn-default btn-block"
+              style="background-color: rgb(193, 122, 222); color: aliceblue;">AJOUTER ARTICLE</button></a>
         </li>
       </ul>
     </div>
   </nav>
 </div>
-
-
 {% endblock %}

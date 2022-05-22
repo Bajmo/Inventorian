@@ -1,43 +1,38 @@
-{% extends 'base.html' %} 
-{% include 'header.html' %} 
-{% block title %} Add item {% endblock %} 
+{% extends 'base.html' %}
+{% include 'header.html' %}
+{% block title %}Inventorian | Ajouter Article{% endblock %}
 {% block body %}
 <div class="container">
   <form action="" method="POST">
     <table class="table">
       <tr>
-        <td>Nom du Produit</td>
-        <td><input type="text" name="name" class="form-control" /></td>
+        <td>Nom de l'article</td>
+        <td><input type="text" name="name" class="form-control" required /></td>
       </tr>
       <tr>
-        <td>Description</td>
-        <td><input type="text" name="description" class="form-control" /></td>
+        <td>Déscription</td>
+        <td><textarea rows="6" name="description" class="form-control" required></textarea></td>
       </tr>
-
       <tr>
-        <td>Prix</td>
-        <td><input type="text" name="price" class="form-control" /></td>
+        <td>Prix unitaire (en MAD)</td>
+        <td><input type="text" name="price" class="form-control" required /></td>
       </tr>
-
       <tr>
-        <td>Quantité</td>
-        <td><input type="text" name="qty" class="form-control" /></td>
+        <td>Quantité en stock</td>
+        <td><input type="text" name="qty" class="form-control" required /></td>
       </tr>
-
       <tr>
-        <td>Lien de l'image du produit</td>
-        <td><input type="text" name="img" class="form-control" /></td>
+        <td>URL de l'image</td>
+        <td><input type="text" name="img" class="form-control" required /></td>
       </tr>
-
       <tr>
-        <td>Category</td>
+        <td>Catégorie</td>
         <td>
-          <select name="category" class="form-control">
+          <select name="category" class="form-control" required>
+            <option disabled selected value> -- Sélectionner une categorie -- </option>
             <option value="Supermarché">Supermarché</option>
             <option value="Beauté & Santé">Beauté & Santé</option>
-            <option value="Vêtements & Chaussures">
-              Vêtements & Chaussures
-            </option>
+            <option value="Vêtements & Chaussures">Vêtements & Chaussures</option>
             <option value="Accessoires Mode">Accessoires Mode</option>
             <option value="Maison & Cuisine">Maison & Cuisine</option>
             <option value="Téléphone & Tablette">Téléphone & Tablette</option>
@@ -50,15 +45,11 @@
           </select>
         </td>
       </tr>
-
       <tr>
         <td colspan="2">
-          <input
-            type="submit"
-            name="submit"
-            value="submit"
-            class="btn btn-warning"
-          />
+          <input type="submit" name="submit" value="Envoyer" class="btn btn-default"
+            style="background-color: rgb(193, 122, 222); color: aliceblue;" />
+          <a href="/" class="btn btn-danger">Annuler</a>
         </td>
       </tr>
     </table>

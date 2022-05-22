@@ -1,12 +1,15 @@
 {% extends 'base.html' %}
 {% include 'header.html' %}
-{% block title %} Confirm deletion {% endblock %}
+{% block title %}Inventorian | Confirmer Suppression{% endblock %}
 {% block body %}
-<div class="container">
-  <form action="" method="post">
-    Click YES to confirm
-    <input type="submit" value="YES" class="btn btn-danger" />
-    <a href="/">Cancel</a>
+<div class="container card text-center">
+  <form action="" method="POST">
+    <div class="card-body">
+      <h5 class="card-title">Confirmer la suppression</h5>
+      <p class="card-text">Est-ce que vous-êtes sûr?</p>
+      <input type="submit" value="Oui" class="btn btn-danger" />
+      <a href="/client_list" class="btn btn-default" style="background-color: rgb(193, 122, 222); color: aliceblue;">Non</a>
+    </div>
   </form>
 </div>
 {% endblock %}
