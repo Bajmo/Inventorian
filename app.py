@@ -323,7 +323,7 @@ def delete_client(id):
         if clients:
             db.session.delete(clients)
             db.session.commit()
-            return redirect('/')
+            return redirect('/client_list')
 
     return render_template('delete_client.html')
 
