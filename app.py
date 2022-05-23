@@ -421,7 +421,7 @@ def inscription_admin():
         password = request.form['password']
         for admin in admins:
             if admin.email == email:
-                error = "Cette adresse email est déja réservée! Réessayer."
+                error = "Cette adresse email est déja réservée! Réessayer"
                 return render_template('/admin/inscription_admin.html', error=error)
         new_admin = Admin(pseudo=pseudo, email=email, telephone=telephone,
                             password=password)
@@ -442,9 +442,9 @@ def connexion_admin():
             if password == admin.password:
                 return redirect('/liste_produits')
             else:
-                error = "Mot de passe invalid! Réesayer."
+                error = "Mot de passe invalid! Réesayer"
         else:
-            error = "Email introuvable! Réesayer."
+            error = "Email introuvable! Réesayer"
     return render_template('/admin/connexion_admin.html', error=error)
 
 
