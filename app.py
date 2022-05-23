@@ -280,6 +280,7 @@ def liste_produits():
     nbrProduits = ProductModel.query.count()
     return render_template('/liste_produits.html', products=products, nbrCommandes=nbrCommandes, nbrClients=nbrClients, nbrProduits=nbrProduits, nbrCommandesConfirmees=nbrCommandesConfirmees)
 
+
 @app.route('/liste_commandes', methods=['GET'])
 def liste_commandes():
     commandes = Commande.query.all()
@@ -366,7 +367,6 @@ def supprimer_client(id):
 
 @app.route('/<int:id>/details_article', methods=['GET'])
 def details_article(id):
-    cond = False
     liste_commandes = Commande.query.all()
     product = ProductModel.query.filter_by(id=id).first()
     for commande_a_chercher in liste_commandes:
@@ -374,10 +374,11 @@ def details_article(id):
         for prod in liste_prods[:-1]:
             info_prod = prod.split(":")
             if id == int(info_prod[0]):
-                cond = True
-    if cond:
-        commandes = Commande.query.filter_by(liste_product=commande_a_chercher.liste_product)            
-    return render_template('/details_article.html', product=product, commandes=commandes)
+                commandes = Commande.query.filter_by(liste_product=commande_a_chercher.liste_product)
+    if liste_commandes:
+        return render_template('/details_article.html', product=product, commandes=commandes)
+    else:
+        return render_template('/details_article.html', product=product)
 
 
 @app.route('/<int:id>/details_client', methods=['GET'])
