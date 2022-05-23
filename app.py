@@ -275,7 +275,7 @@ def ajouterCommande():
 def liste_produits():
     products = ProductModel.query.all()
     nbrCommandes = Commande.query.count()
-    nbrCommandesConfirmees = Commande.query.filter_by(status="Conf.").count()
+    nbrCommandesConfirmees = Commande.query.filter_by(status="Accepted").count()
     nbrClients = Client.query.count()
     nbrProduits = ProductModel.query.count()
     return render_template('/liste_produits.html', products=products, nbrCommandes=nbrCommandes, nbrClients=nbrClients, nbrProduits=nbrProduits, nbrCommandesConfirmees=nbrCommandesConfirmees)
@@ -284,7 +284,7 @@ def liste_produits():
 @app.route('/liste_commandes', methods=['GET'])
 def liste_commandes():
     commandes = Commande.query.all()
-    commandesFinalisees = Commande.query.filter_by(status="Conf.")
+    commandesFinalisees = Commande.query.filter_by(status="Accepted")
     revenue = 0.0
     for commande in commandesFinalisees:
         revenue += commande.TotalPrix
@@ -368,15 +368,16 @@ def supprimer_client(id):
 @app.route('/<int:id>/details_article', methods=['GET'])
 def details_article(id):
     liste_commandes = Commande.query.all()
+    commandes = []
     product = ProductModel.query.filter_by(id=id).first()
     for commande_a_chercher in liste_commandes:
         liste_prods = commande_a_chercher.liste_product.split("\n")
         for prod in liste_prods[:-1]:
             info_prod = prod.split(":")
             if id == int(info_prod[0]):
-                commandes = Commande.query.filter_by(liste_product=commande_a_chercher.liste_product)
+                commandes.append(Commande.query.filter_by(liste_product=commande_a_chercher.liste_product).first())
     if liste_commandes:
-        return render_template('/details_article.html', product=product, commandes=commandes)
+        return render_template('/details_article.html', commandes=commandes, product=product)
     else:
         return render_template('/details_article.html', product=product)
 
@@ -391,7 +392,7 @@ def details_client(id):
 @app.route('/<int:id>/accepter_commande', methods=['POST'])
 def accepter_commande(id):
     commande = Commande.query.filter_by(id=id).first()
-    commande.status = "Conf."
+    commande.status = "Accepted"
     liste_prods = commande.liste_product.split("\n")
     for prod in liste_prods[:-1]:
         info_prod = prod.split(":")
@@ -404,7 +405,7 @@ def accepter_commande(id):
 @app.route('/<int:id>/refuser_commande', methods=['POST'])
 def refuser_commande(id):
     commande = Commande.query.filter_by(id=id).first()
-    status = "Rej."
+    status = "Rejected"
     commande.status = status
     db.session.commit()
     return redirect('/liste_commandes')
