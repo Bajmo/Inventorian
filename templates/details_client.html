@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Inventorian | Détails Client{% endblock %}
+{% block body %}
+<div class="container mb-4">
+    <h2 class="font-weight-bold">DÉTAILS CLIENTS</h2>
+</div>
+<div class="container">
+    <table class="table table-bordered" style="background: white;">
+        <thead style="background-color: rgb(193, 122, 222); color: aliceblue">
+            <th>ID</th>
+            <th>Image</th>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Téléphone</th>
+            <th>Action</th>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{client.id}}</td>
+                <td align="center">
+                    <img src="{{client.image}}" width="80" class="rounded" />
+                </td>
+                <td>{{client.nickname}}</td>
+                <td>{{client.mail}}</td>
+                <td>{{client.numberPhone}}</td>
+                <td align="center">
+                    <a href="/{{client.id}}/supprimer_client" style="font-size: 24px; color: rgb(193, 122, 222);">
+                        <i class="fas fa-trash-alt"></i>
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="container mt-5 mb-4">
+    <h2 class="font-weight-bold">COMMANDES EFFECTUÉES</h2>
+</div>
+<div class="container">
+    <table class="table table-bordered" style="background: white;">
+        <thead style="background-color: rgb(193, 122, 222); color: aliceblue;">
+            <th>ID</th>
+            <th>Date commande</th>
+            <th>Adresse de livraison</th>
+            <th>Produit(s) commandé(s)</th>
+            <th>Prix total</th>
+            <th>Méthode de paiement</th>
+            <th>État</th>
+        </thead>
+        <tbody>
+            {% for commande in commandes %}
+            <tr>
+                <td>{{commande.id}}</td>
+                <td>{{commande.dateComande}}</td>
+                <td>{{commande.adresseCommande}}</td>
+                <td>
+                    <table class="table table-bordered">
+                        <thead style="background-color: rgb(193, 122, 222); color: aliceblue;">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Nom</th>
+                                <th scope="col">Qte</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set liste_prods = commande.liste_product.split("\n") %}
+                            {% for prod in liste_prods[:-1] %}
+                            {% set info_prod = prod.split(":") %}
+                            <tr>
+                                <th scope="row">
+                                    <a href="/{{info_prod[0]}}/details_article" style="font-size: 24px; color: rgb(193, 122, 222);">
+                                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                                    </a>
+                                </th>
+                                <td>{{info_prod[1]}}</td>
+                                <td>{{info_prod[2]}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+                <td width="130">{{'%0.2f'|format(commande.TotalPrix|float)}} MAD</td>
+                <td>{{commande.paiment_method}}</td>
+                <td width="108">{{commande.status}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

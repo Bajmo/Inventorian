@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block title %}Inventorian{% endblock %}
+{% block body %}
+
+<div class="container mb-4">
+  <h2 class="font-weight-bold">STATISTIQUES</h2>
+</div>
+<div class="d-flex justify-content-center">
+  <div class="card mb-4 mx-2">
+    <div class="card-body">
+      <div class="row">
+        <div class="col">
+          <h5 class="card-title text-muted mb-0">NOMBRE DE CLIENTS</h5>
+          <span class="h2 font-weight-bold mb-0">{{nbrClients}} CLIENTS</span>
+        </div>
+        <div class="col-auto">
+          <i class="fa-solid fa-user-group"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card mb-4 mx-2">
+    <div class="card-body">
+      <div class="row">
+        <div class="col">
+          <h5 class="card-title text-muted mb-0">NOMBRE DE PRODUITS</h5>
+          <span class="h2 font-weight-bold mb-0">{{nbrProduits}} PRODUITS</span>
+        </div>
+        <div class="col-auto">
+          <i class="fa-solid fa-cubes"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card mb-4  mx-2">
+    <div class="card-body">
+      <div class="row">
+        <div class="col">
+          <h5 class="card-title text-muted mb-0">COMMANDES EFFECTUÉES</h5>
+          <span class="h2 font-weight-bold mb-0">{{nbrCommandes}} COMMANDES</span>
+        </div>
+        <div class="col-auto">
+          <i class="fa-solid fa-rectangle-list"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card mb-4 mx-2">
+    <div class="card-body">
+      <div class="row">
+        <div class="col">
+          <h5 class="card-title text-muted mb-0">COMMANDES CONFIRMÉES</h5>
+          <span class="h2 font-weight-bold mb-0">{{nbrCommandesConfirmees}} COMMANDES</span>
+        </div>
+        <div class="col-auto">
+          <i class="fa-solid fa-money-check-dollar"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container mt-5 mb-4">
+  <h2 class="font-weight-bold">ARTICLES EN STOCK</h2>
+</div>
+<div class="container">
+  <table class="table table-bordered" style="background: white;">
+    <thead style="background-color: rgb(193, 122, 222); color: aliceblue;">
+      <th>ID</th>
+      <th>Image</th>
+      <th>Nom</th>
+      <th>Déscription</th>
+      <th>Prix</th>
+      <th>Quantité</th>
+      <th>Catégorie</th>
+      <th>Actions</th>
+    </thead>
+    <tbody>
+      {% for product in products %} <tr>
+        <td>{{ product.id }}</td>
+        <td align="center">
+          <img src="{{product.img}}" width="80" />
+        </td>
+        <td>{{product.name}}</td>
+        <td>{{product.description}}</td>
+        <td width="130">{{'%0.2f'|format(product.price|float)}} MAD</td>
+        <td>{{product.qty}} Pcs.</td>
+        <td>{{product.category}}</td>
+        <td width="117" align="center">
+          <a href="/{{product.id}}/page_modification" style="font-size: 24px;color:rgb(193, 122, 222);">
+            <i class="fas fa-edit">&nbsp;</i>
+          </a>
+          <a href="/{{product.id}}/supprimer_produit" style="font-size: 24px;color:rgb(193, 122, 222);">
+            <i class="fas fa-trash-alt">&nbsp;</i></a>
+          <a href="/{{product.id}}/details_article" style="font-size: 24px; color: rgb(193, 122, 222);">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
