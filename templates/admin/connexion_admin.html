@@ -51,7 +51,11 @@
                             <a href="/admin/inscription_admin" class="btn btn-block btn-success mt-4">Créer un compte</a>
                         </form>
                         <br>
-                        {{error}}
+                        {% if error %}
+                        <span class="btn btn-block btn-danger">
+                            {{error}}
+                        </span>
+                        {% endif %}
                     </div>
                 </div>
             </div>
