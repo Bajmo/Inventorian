@@ -390,7 +390,7 @@ def details_client(id):
 @app.route('/<int:id>/accepter_commande', methods=['POST'])
 def accepter_commande(id):
     commande = Commande.query.filter_by(id=id).first()
-    commande.status = "Acceptée!"
+    commande.status = "Conf."
     liste_prods = commande.liste_product.split("\n")
     for prod in liste_prods[:-1]:
         info_prod = prod.split(":")
@@ -403,7 +403,7 @@ def accepter_commande(id):
 @app.route('/<int:id>/refuser_commande', methods=['POST'])
 def refuser_commande(id):
     commande = Commande.query.filter_by(id=id).first()
-    status = "Rejetée!"
+    status = "Rej."
     commande.status = status
     db.session.commit()
     return redirect('/liste_commandes')
