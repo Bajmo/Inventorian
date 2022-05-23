@@ -409,7 +409,7 @@ def refuser_commande(id):
     return redirect('/liste_commandes')
 
 
-@app.route('/inscription_admin', methods=['GET', 'POST'])
+@app.route('/admin/inscription_admin', methods=['GET', 'POST'])
 def inscription_admin():
     error = ""
     admins = Admin.query.all()
