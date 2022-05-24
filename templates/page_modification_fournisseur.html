@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Inventorian | Ajouter Fournisseur{% endblock %}
+{% block body %}
+<div class="container mb-4">
+    <h2 class="font-weight-bold">AJOUTER UN FOURNISSEUR</h2>
+</div>
+<div class="container">
+    <form action="" method="POST">
+        <table class="table">
+            <tr>
+                <td>Nom du fournisseur</td>
+                <td><input type="text" name="nom_fou" class="form-control" value="{{fournisseur.nom_fou}}" required />
+                </td>
+            </tr>
+            <tr>
+                <td>Email</td>
+                <td><input type="text" name="email" class="form-control" value="{{fournisseur.email}}" required /></td>
+                </td>
+            </tr>
+            <tr>
+                <td>URL de l'image</td>
+                <td><input type="text" name="email" class="form-control" value="{{fournisseur.url_image}}" required />
+                </td>
+                </td>
+            </tr>
+            <tr>
+                <td>Téléphone</td>
+                <td><input type="text" name="telephone" class="form-control" value="{{fournisseur.telephone}}"
+                        required /></td>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <input type="submit" name="submit" value="Envoyer" class="btn btn-default"
+                        style="background-color: rgb(193, 122, 222); color: aliceblue;" />
+                    <a href="/liste_fournisseurs" class="btn btn-danger">Annuler</a>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+{% endblock %}

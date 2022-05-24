@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Inventorian | Ajouter Article{% endblock %}
+{% block body %}
+<div class="container mb-4">
+  <h2 class="font-weight-bold">AJOUTER UN ARTICLE</h2>
+</div>
+<div class="container">
+  <form action="" method="POST">
+    <table class="table">
+      <tr>
+        <td>Nom de l'article</td>
+        <td><input type="text" name="name" class="form-control" required /></td>
+      </tr>
+      <tr>
+        <td>Déscription</td>
+        <td><textarea rows="6" name="description" class="form-control" required></textarea></td>
+      </tr>
+      <tr>
+        <td>Prix unitaire (en MAD)</td>
+        <td><input type="number" name="price" class="form-control" required /></td>
+      </tr>
+      <tr>
+        <td>Quantité en stock</td>
+        <td><input type="number" name="qty" class="form-control" required /></td>
+      </tr>
+      <tr>
+        <td>URL de l'image</td>
+        <td><input type="text" name="img" class="form-control" required /></td>
+      </tr>
+      <tr>
+        <td>Catégorie</td>
+        <td>
+          <select name="category" class="form-control" required>
+            <option disabled selected value> -- Sélectionner une categorie -- </option>
+            <option value="Mobile">Mobile</option>
+            <option value="Accessoires">Accessoires</option>
+            <option value="Ordinateurs">Ordinateurs</option>
+            <option value="Jeux">Jeux</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td>Fournisseur</td>
+        <td>
+          <select name="id_fou" class="form-control" required>
+            <option disabled selected value> -- Sélectionner un fournisseur -- </option>
+            {% for fournisseur in fournisseurs %}
+            <option value="{{fournisseur.id}}">{{fournisseur.nom_fou}}</option>
+            {% endfor %}
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <input type="submit" name="submit" value="Envoyer" class="btn btn-default"
+            style="background-color: rgb(193, 122, 222); color: aliceblue;" />
+          <a href="liste_produits" class="btn btn-danger">Annuler</a>
+        </td>
+      </tr>
+    </table>
+  </form>
+</div>
+{% endblock %}

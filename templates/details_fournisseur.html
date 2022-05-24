@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Inventorian | Détails Fournisseur{% endblock %}
+{% block body %}
+<div class="container mb-4">
+    <h2 class="font-weight-bold">DÉTAILS FOURNISSEUR</h2>
+</div>
+<div class="container">
+    <table class="table table-bordered" style="background: white;">
+        <thead style="background-color: rgb(193, 122, 222); color: aliceblue">
+            <th>ID</th>
+            <th>Image</th>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Téléphone</th>
+            <th>Action</th>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{fournisseur.id}}</td>
+                <td align="center">
+                    <img src="{{fournisseur.url_image}}" width="80" class="rounded" />
+                </td>
+                <td>{{fournisseur.nom_fou}}</td>
+                <td>{{fournisseur.email}}</td>
+                <td>{{fournisseur.telephone}}</td>
+                <td align="center">
+                    <a href="/{{fournisseur.id}}/page_modification_fournisseur"
+                        style="font-size: 24px; color: rgb(193, 122, 222);">
+                        <i class="fas fa-edit">&nbsp;</i>
+                    </a>
+                    <a href="/{{fournisseur.id}}/supprimer_fournisseur"
+                        style="font-size: 24px; color: rgb(193, 122, 222);">
+                        <i class="fas fa-trash-alt"></i>
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="container mt-5 mb-4">
+    <h2 class="font-weight-bold">ARTICLES FOURNIS</h2>
+</div>
+<div class="container">
+    <table class="table table-bordered" style="background: white;">
+        <thead style="background-color: rgb(193, 122, 222); color: aliceblue;">
+            <th>ID</th>
+            <th>Image</th>
+            <th>Nom</th>
+            <th>Déscription</th>
+            <th>Prix</th>
+            <th>Quantité</th>
+            <th>Catégorie</th>
+            <th>Actions</th>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.id }}</td>
+                <td align="center">
+                    <img src="{{product.img}}" width="80" />
+                </td>
+                <td>{{product.name}}</td>
+                <td>{{product.description}}</td>
+                <td width="145">{{'%0.2f'|format(product.price|float)}} MAD</td>
+                <td>{{product.qty}} Pcs.</td>
+                <td>{{product.category}}</td>
+                <td width="125" align="center">
+                    <a href="/{{product.id}}/page_modification" style="font-size: 24px;color:rgb(193, 122, 222);">
+                        <i class="fas fa-edit">&nbsp;</i>
+                    </a>
+                    <a href="/{{product.id}}/supprimer_produit" style="font-size: 24px;color:rgb(193, 122, 222);">
+                        <i class="fas fa-trash-alt">&nbsp;</i></a>
+                    <a href="/{{product.id}}/details_article" style="font-size: 24px; color: rgb(193, 122, 222);">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

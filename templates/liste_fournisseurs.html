@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Inventorian | Liste Fournisseurs{% endblock %}
+{% block body %}
+<div class="container mb-4">
+    <h2 class="font-weight-bold">FOURNISSEURS</h2>
+</div>
+<div class="container">
+    <table class="table table-bordered" style="background: white;">
+        <thead style="background-color: rgb(193, 122, 222); color: aliceblue">
+            <th>ID</th>
+            <th>Image</th>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Téléphone</th>
+            <th>Actions</th>
+        </thead>
+        <tbody>
+            {% for fournisseur in fournisseurs %}
+            <tr>
+                <td>{{fournisseur.id}}</td>
+                <td align="center">
+                    <img src="{{fournisseur.url_image}}" width="80" class="rounded" />
+                </td>
+                <td>{{fournisseur.nom_fou}}</td>
+                <td>{{fournisseur.email}}</td>
+                <td>{{fournisseur.telephone}}</td>
+                <td align="center">
+                    <a href="/{{fournisseur.id}}/page_modification_fournisseur"
+                        style="font-size: 24px; color: rgb(193, 122, 222);">
+                        <i class="fas fa-edit">&nbsp;</i>
+                    </a>
+                    <a href="/{{fournisseur.id}}/supprimer_fournisseur"
+                        style="font-size: 24px; color: rgb(193, 122, 222);">
+                        <i class="fas fa-trash-alt">&nbsp;</i>
+                    </a>
+                    <a href="/{{fournisseur.id}}/details_fournisseur"
+                        style="font-size: 24px; color: rgb(193, 122, 222);">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
