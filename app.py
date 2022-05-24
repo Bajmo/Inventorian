@@ -54,18 +54,34 @@ class Client(db.Model):
         self.password = password
 
 
+class Fournisseur(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nom_fou = db.Column(db.String(20))
+    email = db.Column(db.String(30))
+    url_image = db.Column(db.String(300))
+    telephone = db.Column(db.String(20))
+    children = db.relationship('ProductModel', backref='Fournisseur')
+
+    def __init__(self, nom_fou, email, telephone):
+        self.nom_fou = nom_fou
+        self.email = email
+        self.telephone = telephone
+
+
 class ProductModel(db.Model):
 
     __tablename__ = "Products"
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True)
+    id_fou = db.Column(db.Integer, db.ForeignKey(Fournisseur.id))
     description = db.Column(db.String(1000))
     price = db.Column(db.Float)
     qty = db.Column(db.Integer)
     category = db.Column(db.String(100))
     img = db.Column(db.String(300))
     children = db.relationship('Panier', backref='ProductModel')
+    children2 = db.relationship('Stock', backref='ProductModel')
 
     def _init_(self, name, description, price, qty, img, category):
         self.name = name
@@ -74,6 +90,14 @@ class ProductModel(db.Model):
         self.qty = qty
         self.img = img
         self.category = category
+
+
+class Stock(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    id_Product = db.Column(db.Integer, db.ForeignKey(ProductModel.id))
+
+    def _init_(self, id_Product):
+        self.id_Product = id_Product
 
 
 class Panier(db.Model):
@@ -122,7 +146,7 @@ class ClientSchema(ma.Schema):
 
 class ProductModelSchema(ma.Schema):
     class Meta:
-        fields = ('id', 'name', 'description',
+        fields = ('id', 'id_fou', 'name', 'description',
                   'price', 'qty', 'img', 'category')
 
 
@@ -175,7 +199,7 @@ def add_client():
 
 @app.route('/products', methods=['GET'])
 def getAllProduct():
-    products = ProductModel.query.all()
+    products = ProductModel.query.join(Stock).all()
     result = products_schema.dump(products)
     return jsonify(result)
 
@@ -275,10 +299,17 @@ def ajouterCommande():
 def liste_produits():
     products = ProductModel.query.all()
     nbrCommandes = Commande.query.count()
-    nbrCommandesConfirmees = Commande.query.filter_by(status="Accepted").count()
+    nbrCommandesConfirmees = Commande.query.filter_by(
+        status="Accepted").count()
     nbrClients = Client.query.count()
     nbrProduits = ProductModel.query.count()
     return render_template('/liste_produits.html', products=products, nbrCommandes=nbrCommandes, nbrClients=nbrClients, nbrProduits=nbrProduits, nbrCommandesConfirmees=nbrCommandesConfirmees)
+
+
+@app.route('/liste_fournisseurs', methods=['GET'])
+def liste_fournisseurs():
+    fournisseurs = Fournisseur.query.all()
+    return render_template('/liste_fournisseurs.html', fournisseurs=fournisseurs)
 
 
 @app.route('/liste_commandes', methods=['GET'])
@@ -294,15 +325,39 @@ def liste_commandes():
 @app.route('/liste_clients')
 def liste_clients():
     clients = Client.query.all()
-    return render_template('/liste_clients.html', clients=clients)    
+    return render_template('/liste_clients.html', clients=clients)
 
 
-@app.route('/page_ajout', methods=['GET', 'POST'])
-def page_ajout():
+@app.route('/page_ajout_fou', methods=['GET', 'POST'])
+def page_ajout_fou():
     if request.method == 'GET':
-        return render_template('page_ajout.html')
+        return render_template('page_ajout_fou.html')
+    if request.method == 'POST':
+        nom_fou = request.form['nom_fou']
+        email = request.form['email']
+        telephone = request.form['telephone']
+        fou = Fournisseur(
+            nom_fou=nom_fou,
+            email=email,
+            telephone=telephone
+        )
+
+        db.session.add(fou)
+        db.session.commit()
+        return redirect('/liste_produits')
+
+
+@app.route('/page_ajout_prod', methods=['GET'])
+def getFournisseurs():
+    fournisseurs = Fournisseur.query.all()
+    return render_template('page_ajout_prod.html', fournisseurs=fournisseurs)
+
+
+@app.route('/page_ajout_prod', methods=['POST'])
+def page_ajout_prod():
     if request.method == 'POST':
         name = request.form['name']
+        id_fou = request.form['id_fou']
         description = request.form['description']
         price = request.form['price']
         qty = request.form['qty']
@@ -310,13 +365,18 @@ def page_ajout():
         img = request.form['img']
         products = ProductModel(
             name=name,
+            id_fou=id_fou,
             description=description,
             price=price,
             qty=qty,
             img=img,
             category=category
         )
+
         db.session.add(products)
+        db.session.commit()
+        productToStock = Stock(id_Product=products.id)
+        db.session.add(productToStock)
         db.session.commit()
         return redirect('/liste_produits')
 
@@ -343,12 +403,32 @@ def page_modification(id):
     return render_template('/page_modification.html', products=products)
 
 
+@app.route('/<int:id>/page_modification_fournisseur', methods=['GET', 'POST'])
+def page_modification_fournisseur(id):
+    fournisseur = Fournisseur.query.filter_by(id=id).first()
+    if request.method == 'POST':
+        if fournisseur:
+            nom_fou = request.form['nnom_fouame']
+            email = request.form['email']
+            url_image = request.form['url_image']
+            telephone = request.form['telephone']
+            fournisseur.nom_fou = nom_fou
+            fournisseur.email = email
+            fournisseur.url_image = url_image
+            fournisseur.telephone = telephone
+        db.session.commit()
+        return redirect('/liste_fournisseurs')
+    return render_template('/page_modification_fournisseur.html', fournisseur=fournisseur)
+
+
 @app.route('/<int:id>/supprimer_produit', methods=['GET', 'POST'])
 def supprimer_produit(id):
     products = ProductModel.query.filter_by(id=id).first()
+    stock_supp = Stock.query.filter_by(id_Product=id).first()
     if request.method == 'POST':
         if products:
             db.session.delete(products)
+            db.session.delete(stock_supp)
             db.session.commit()
             return redirect('/liste_produits')
     return render_template('/supprimer_produit.html')
@@ -365,21 +445,34 @@ def supprimer_client(id):
     return render_template('/supprimer_client.html')
 
 
+@app.route('/<int:id>/supprimer_fournisseur', methods=['GET', 'POST'])
+def supprimer_fournisseur(id):
+    fournisseur = Fournisseur.query.filter_by(id=id).first()
+    if request.method == 'POST':
+        if fournisseur:
+            db.session.delete(fournisseur)
+            db.session.commit()
+            return redirect('/liste_fournisseurs')
+    return render_template('/supprimer_fournisseur.html')
+
+
 @app.route('/<int:id>/details_article', methods=['GET'])
 def details_article(id):
     liste_commandes = Commande.query.all()
     commandes = []
     product = ProductModel.query.filter_by(id=id).first()
+    fournisseur = Fournisseur.query.filter_by(id=product.id_fou).first()
     for commande_a_chercher in liste_commandes:
         liste_prods = commande_a_chercher.liste_product.split("\n")
         for prod in liste_prods[:-1]:
             info_prod = prod.split(":")
             if id == int(info_prod[0]):
-                commandes.append(Commande.query.filter_by(liste_product=commande_a_chercher.liste_product).first())
+                commandes.append(Commande.query.filter_by(
+                    liste_product=commande_a_chercher.liste_product).first())
     if liste_commandes:
-        return render_template('/details_article.html', commandes=commandes, product=product)
+        return render_template('/details_article.html', fournisseur=fournisseur, commandes=commandes, product=product)
     else:
-        return render_template('/details_article.html', product=product)
+        return render_template('/details_article.html', fournisseur=fournisseur, product=product)
 
 
 @app.route('/<int:id>/details_client', methods=['GET'])
@@ -389,6 +482,13 @@ def details_client(id):
     return render_template('/details_client.html', client=client, commandes=commandes)
 
 
+@app.route('/<int:id>/details_fournisseur', methods=['GET'])
+def details_fournisseur(id):
+    products = ProductModel.query.filter_by(id_fou=id)
+    fournisseur = Fournisseur.query.filter_by(id=id).first()
+    return render_template('/details_fournisseur.html', fournisseur=fournisseur, products=products)
+
+
 @app.route('/<int:id>/accepter_commande', methods=['POST'])
 def accepter_commande(id):
     commande = Commande.query.filter_by(id=id).first()
@@ -396,11 +496,12 @@ def accepter_commande(id):
     liste_prods = commande.liste_product.split("\n")
     for prod in liste_prods[:-1]:
         info_prod = prod.split(":")
-        product = ProductModel.query.filter_by(id=int(info_prod[0])).first()
+        product = ProductModel.query.join(
+            Stock).filter_by(id=int(info_prod[0])).first()
         product.qty -= int(info_prod[2])
-    db.session.commit()
+        db.session.commit()
     return redirect('/liste_commandes')
-    
+
 
 @app.route('/<int:id>/refuser_commande', methods=['POST'])
 def refuser_commande(id):
@@ -425,7 +526,7 @@ def inscription_admin():
                 error = "Cette adresse email est déja réservée! Réessayer"
                 return render_template('/admin/inscription_admin.html', error=error)
         new_admin = Admin(pseudo=pseudo, email=email, telephone=telephone,
-                            password=password)
+                          password=password)
         db.session.add(new_admin)
         db.session.commit()
         return redirect('/')
