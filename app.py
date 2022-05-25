@@ -2,7 +2,6 @@ from flask import Flask, jsonify, render_template, redirect, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_login import LoginManager, login_user, login_required, logout_user
-from sqlalchemy import null
 import os
 
 
