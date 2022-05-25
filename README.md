@@ -14,3 +14,5 @@ SQLAlchemy
 Flask-SQLAlchemy
 
 Flask-Marshmallow
+
+Flask-Login
