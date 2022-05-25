@@ -25,10 +25,10 @@
                 <td>{{client.mail}}</td>
                 <td>{{client.numberPhone}}</td>
                 <td align="center">
-                    <a href="/{{client.id}}/supprimer_client" style="font-size: 24px; color: rgb(193, 122, 222);">
+                    <a href="{{url_for('supprimer_client', id=client.id)}}" style="font-size: 24px; color: rgb(193, 122, 222);">
                         <i class="fas fa-trash-alt">&nbsp;</i>
                     </a>
-                    <a href="/{{client.id}}/details_client" style="font-size: 24px; color: rgb(193, 122, 222);">
+                    <a href="{{url_for('details_client', id=client.id)}}" style="font-size: 24px; color: rgb(193, 122, 222);">
                         <i class="fa-solid fa-arrow-right-to-bracket"></i>
                     </a>
                 </td>

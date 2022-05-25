@@ -1,13 +1,23 @@
-from flask import Flask, jsonify, render_template, redirect, request
+from flask import Flask, jsonify, render_template, redirect, request 
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from flask_login import LoginManager, login_user, login_required, logout_user
 from sqlalchemy import null
 import os
 
 
-# Définition de l'application "app"
+# La class "LoginManager"
+login_manager = LoginManager()
+
+
+# Définition de l'application "app" et liason avec l'objet de gestion des logins
 app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
+login_manager.init_app(app)
+
+
+# Création d'un "secret key" pour signer les cookies de session
+app.secret_key = "0fce17cdea96d72c3290d216400b92a058900acfe9d882d3c0eaaf47256ffc8f"
 
 
 # Définition de la base de données "db"
@@ -34,6 +44,24 @@ class Admin(db.Model):
         self.email = email
         self.telephone = telephone
         self.password = password
+
+    @property
+    def is_active(self):
+        return True
+
+    @property
+    def is_authenticated(self):
+        return self.is_active
+
+    @property
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        try:
+            return str(self.id)
+        except AttributeError:
+            raise NotImplementedError("No `id` attribute - override `get_id`") from None
 
 
 class Client(db.Model):
@@ -136,6 +164,12 @@ class Commande(db.Model):
         self.liste_product = liste_product
         self.paiment_method = paiment_method
         self.status = status
+
+
+
+@login_manager.user_loader
+def load_user(admin_id):
+    return Admin.query.get(admin_id)
 
 
 # Création des schémas
@@ -294,8 +328,16 @@ def ajouterCommande():
     return {"results": str(new_commande.id)}
 
 
+@app.route('/getListeCommande/<id>',methods=['GET'])
+def getListeCommande(id):
+    listCommande = Commande.query.filter_by(id_Client=id).all()
+    result = commandes_schema.dump(listCommande)
+    return jsonify(result)
+
+
 # Définition des routes: WEB
 @app.route('/liste_produits')
+@login_required
 def liste_produits():
     products = ProductModel.query.all()
     nbrCommandes = Commande.query.count()
@@ -307,12 +349,14 @@ def liste_produits():
 
 
 @app.route('/liste_fournisseurs', methods=['GET'])
+@login_required
 def liste_fournisseurs():
     fournisseurs = Fournisseur.query.all()
     return render_template('/liste_fournisseurs.html', fournisseurs=fournisseurs)
 
 
 @app.route('/liste_commandes', methods=['GET'])
+@login_required
 def liste_commandes():
     commandes = Commande.query.all()
     commandesFinalisees = Commande.query.filter_by(status="Accepted")
@@ -323,12 +367,14 @@ def liste_commandes():
 
 
 @app.route('/liste_clients')
+@login_required
 def liste_clients():
     clients = Client.query.all()
     return render_template('/liste_clients.html', clients=clients)
 
 
 @app.route('/page_ajout_fou', methods=['GET', 'POST'])
+@login_required
 def page_ajout_fou():
     if request.method == 'GET':
         return render_template('page_ajout_fou.html')
@@ -344,16 +390,18 @@ def page_ajout_fou():
 
         db.session.add(fou)
         db.session.commit()
-        return redirect('/liste_produits')
+        return redirect('/page_ajout_fou')
 
 
 @app.route('/page_ajout_prod', methods=['GET'])
+@login_required
 def getFournisseurs():
     fournisseurs = Fournisseur.query.all()
     return render_template('page_ajout_prod.html', fournisseurs=fournisseurs)
 
 
 @app.route('/page_ajout_prod', methods=['POST'])
+@login_required
 def page_ajout_prod():
     if request.method == 'POST':
         name = request.form['name']
@@ -378,10 +426,11 @@ def page_ajout_prod():
         productToStock = Stock(id_Product=products.id)
         db.session.add(productToStock)
         db.session.commit()
-        return redirect('/liste_produits')
+        return redirect('/page_ajout_prod')
 
 
 @app.route('/<int:id>/page_modification', methods=['GET', 'POST'])
+@login_required
 def page_modification(id):
     products = ProductModel.query.filter_by(id=id).first()
     if request.method == 'POST':
@@ -404,6 +453,7 @@ def page_modification(id):
 
 
 @app.route('/<int:id>/page_modification_fournisseur', methods=['GET', 'POST'])
+@login_required
 def page_modification_fournisseur(id):
     fournisseur = Fournisseur.query.filter_by(id=id).first()
     if request.method == 'POST':
@@ -422,6 +472,7 @@ def page_modification_fournisseur(id):
 
 
 @app.route('/<int:id>/supprimer_produit', methods=['GET', 'POST'])
+@login_required
 def supprimer_produit(id):
     products = ProductModel.query.filter_by(id=id).first()
     stock_supp = Stock.query.filter_by(id_Product=id).first()
@@ -435,6 +486,7 @@ def supprimer_produit(id):
 
 
 @app.route('/<int:id>/supprimer_client', methods=['GET', 'POST'])
+@login_required
 def supprimer_client(id):
     clients = Client.query.filter_by(id=id).first()
     if request.method == 'POST':
@@ -446,6 +498,7 @@ def supprimer_client(id):
 
 
 @app.route('/<int:id>/supprimer_fournisseur', methods=['GET', 'POST'])
+@login_required
 def supprimer_fournisseur(id):
     fournisseur = Fournisseur.query.filter_by(id=id).first()
     if request.method == 'POST':
@@ -457,6 +510,7 @@ def supprimer_fournisseur(id):
 
 
 @app.route('/<int:id>/details_article', methods=['GET'])
+@login_required
 def details_article(id):
     liste_commandes = Commande.query.all()
     commandes = []
@@ -467,15 +521,18 @@ def details_article(id):
         for prod in liste_prods[:-1]:
             info_prod = prod.split(":")
             if id == int(info_prod[0]):
-                commandes.append(Commande.query.filter_by(
-                    liste_product=commande_a_chercher.liste_product).first())
-    if liste_commandes:
+                x = Commande.query.filter_by(liste_product=commande_a_chercher.liste_product)
+                for y in x:
+                    if y not in commandes:
+                        commandes.extend(Commande.query.filter_by(liste_product=commande_a_chercher.liste_product))
+    if len(commandes) > 0:
         return render_template('/details_article.html', fournisseur=fournisseur, commandes=commandes, product=product)
     else:
         return render_template('/details_article.html', fournisseur=fournisseur, product=product)
 
 
 @app.route('/<int:id>/details_client', methods=['GET'])
+@login_required
 def details_client(id):
     commandes = Commande.query.filter_by(id_Client=id)
     client = Client.query.filter_by(id=id).first()
@@ -483,6 +540,7 @@ def details_client(id):
 
 
 @app.route('/<int:id>/details_fournisseur', methods=['GET'])
+@login_required
 def details_fournisseur(id):
     products = ProductModel.query.filter_by(id_fou=id)
     fournisseur = Fournisseur.query.filter_by(id=id).first()
@@ -490,6 +548,7 @@ def details_fournisseur(id):
 
 
 @app.route('/<int:id>/accepter_commande', methods=['POST'])
+@login_required
 def accepter_commande(id):
     commande = Commande.query.filter_by(id=id).first()
     commande.status = "Accepted"
@@ -504,6 +563,7 @@ def accepter_commande(id):
 
 
 @app.route('/<int:id>/refuser_commande', methods=['POST'])
+@login_required
 def refuser_commande(id):
     commande = Commande.query.filter_by(id=id).first()
     status = "Rejected"
@@ -542,6 +602,12 @@ def connexion_admin():
         admin = Admin.query.filter_by(email=email).first()
         if admin:
             if password == admin.password:
+                login_user(admin)
+                """
+                next = Flask.request.args.get('next')
+                if not is_safe_url(next):
+                    return Flask.abort(400)
+                """
                 return redirect('/liste_produits')
             else:
                 error = "Mot de passe invalid! Réesayer"
@@ -549,6 +615,17 @@ def connexion_admin():
             error = "Email introuvable! Réesayer"
     return render_template('/admin/connexion_admin.html', error=error)
 
+
+@login_manager.unauthorized_handler
+def unauthorized():
+    return redirect('/')
+
+
+@app.route('/deconnexion_admin')
+@login_required
+def deconnexion_admin():
+    logout_user()
+    return redirect('/')
 
 # Initialisation de l'application "app"
 if __name__ == '__main__':

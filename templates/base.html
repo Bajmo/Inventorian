@@ -33,25 +33,25 @@
           </span>
         </li>
         <li class="list-group-item py-1">
-          <a class="nav-link" href="/liste_produits" style="color: black;">ARTICLES</a>
+          <a class="nav-link" href="{{url_for('liste_produits')}}" style="color: black;">ARTICLES</a>
         </li>
         <li class="list-group-item py-1">
-          <a class="nav-link" href="/liste_commandes" style="color: black;">COMMANDES</a>
+          <a class="nav-link" href="{{url_for('liste_commandes')}}" style="color: black;">COMMANDES</a>
         </li>
         <li class="list-group-item py-1">
-          <a class="nav-link" href="/liste_clients" style="color: black;">CLIENTS</a>
+          <a class="nav-link" href="{{url_for('liste_clients')}}" style="color: black;">CLIENTS</a>
         </li>
         <li class="list-group-item py-1">
-          <a class="nav-link" href="/liste_fournisseurs" style="color: black;">FOURNISSEURS</a>
+          <a class="nav-link" href="{{url_for('liste_fournisseurs')}}" style="color: black;">FOURNISSEURS</a>
         </li>
         <li class="list-group-item py-1 ">
-          <a class="nav-link" href="/page_ajout_prod">
+          <a class="nav-link" href="{{url_for('page_ajout_prod')}}">
             <button type="button" class="btn btn-block btn-default"
               style="background-color: rgb(193, 122, 222); color: aliceblue; font-size: 14px;">AJOUTER ARTICLE</button>
           </a>
         </li>
         <li class="list-group-item py-1 ">
-          <a class="nav-link" href="/page_ajout_fou">
+          <a class="nav-link" href="{{url_for('page_ajout_fou')}}">
             <button type="button" class="btn btn-block btn-default"
               style="background-color: rgb(193, 122, 222); color: aliceblue; font-size: 14px;">AJOUTER
               FOURNISSEUR</button>
@@ -68,7 +68,7 @@
           INVENTORIAN</span>
       </span>
       <span>
-        <a href="/" style="color: black;">
+        <a href="{{url_for('deconnexion_admin')}}" style="color: black;">
           <i class="fa-solid fa-arrow-right-from-bracket"></i><span class="font-weight-bold"> DÉCONNEXION</span>
         </a>
       </span>

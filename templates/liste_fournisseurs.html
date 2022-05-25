@@ -25,15 +25,15 @@
                 <td>{{fournisseur.email}}</td>
                 <td>{{fournisseur.telephone}}</td>
                 <td align="center">
-                    <a href="/{{fournisseur.id}}/page_modification_fournisseur"
+                    <a href="{{url_for('page_modification_fournisseur', id=fournisseur.id)}}"
                         style="font-size: 24px; color: rgb(193, 122, 222);">
                         <i class="fas fa-edit">&nbsp;</i>
                     </a>
-                    <a href="/{{fournisseur.id}}/supprimer_fournisseur"
+                    <a href="{{url_for('supprimer_fournisseur', id=fournisseur.id)}}"
                         style="font-size: 24px; color: rgb(193, 122, 222);">
                         <i class="fas fa-trash-alt">&nbsp;</i>
                     </a>
-                    <a href="/{{fournisseur.id}}/details_fournisseur"
+                    <a href="{{url_for('details_fournisseur', id=fournisseur.id)}}"
                         style="font-size: 24px; color: rgb(193, 122, 222);">
                         <i class="fa-solid fa-arrow-right-to-bracket"></i>
                     </a>
