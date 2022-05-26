@@ -78,8 +78,13 @@
                 <td>{{commande.paiment_method}}</td>
                 <td width="115">{{commande.status}}</td>
                 <td align="center">
-                    {% if commande.status == "Accepted" or commande.status == "Rejected" %}
+                    {% if commande.status == "Rejected" %}
                     <i class="fa-solid fa-check-double"></i>
+                    {% elif commande.status == "Accepted" %}
+                    <a href="{{url_for('details_facture', id=commande.id)}}"
+                        style="font-size: 24px; color: rgb(193, 122, 222);">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    </a>
                     {% elif commande.status == "Pending" %}
                     <form method="POST">
                         <button formaction="/{{commande.id}}/accepter_commande" type="submit"

@@ -1,8 +1,7 @@
-from flask import Flask, jsonify, render_template, redirect, request 
+from flask import Flask, jsonify, render_template, redirect, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_login import LoginManager, login_user, login_required, logout_user
-from sqlalchemy import null
 import os
 
 
@@ -61,7 +60,8 @@ class Admin(db.Model):
         try:
             return str(self.id)
         except AttributeError:
-            raise NotImplementedError("No `id` attribute - override `get_id`") from None
+            raise NotImplementedError(
+                "No `id` attribute - override `get_id`") from None
 
 
 class Client(db.Model):
@@ -164,7 +164,6 @@ class Commande(db.Model):
         self.liste_product = liste_product
         self.paiment_method = paiment_method
         self.status = status
-
 
 
 @login_manager.user_loader
@@ -328,7 +327,7 @@ def ajouterCommande():
     return {"results": str(new_commande.id)}
 
 
-@app.route('/getListeCommande/<id>',methods=['GET'])
+@app.route('/getListeCommande/<id>', methods=['GET'])
 def getListeCommande(id):
     listCommande = Commande.query.filter_by(id_Client=id).all()
     result = commandes_schema.dump(listCommande)
@@ -521,10 +520,12 @@ def details_article(id):
         for prod in liste_prods[:-1]:
             info_prod = prod.split(":")
             if id == int(info_prod[0]):
-                x = Commande.query.filter_by(liste_product=commande_a_chercher.liste_product)
+                x = Commande.query.filter_by(
+                    liste_product=commande_a_chercher.liste_product)
                 for y in x:
                     if y not in commandes:
-                        commandes.extend(Commande.query.filter_by(liste_product=commande_a_chercher.liste_product))
+                        commandes.extend(Commande.query.filter_by(
+                            liste_product=commande_a_chercher.liste_product))
     if len(commandes) > 0:
         return render_template('/details_article.html', fournisseur=fournisseur, commandes=commandes, product=product)
     else:
@@ -537,6 +538,22 @@ def details_client(id):
     commandes = Commande.query.filter_by(id_Client=id)
     client = Client.query.filter_by(id=id).first()
     return render_template('/details_client.html', client=client, commandes=commandes)
+
+
+@app.route('/<int:id>/details_facture', methods=['GET'])
+@login_required
+def details_facture(id):
+    commande = Commande.query.filter_by(id=id).first()
+    client = Client.query.filter_by(id=commande.id_Client).first()
+    liste_prods = commande.liste_product.split("\n")
+    products = []
+    for prod in liste_prods[:-1]:
+        info_prod = prod.split(":")
+        x = ProductModel.query.filter_by(id=info_prod[0])
+        for y in x:
+            if y not in products:
+                products.extend(ProductModel.query.filter_by(id=info_prod[0]))
+    return render_template('/details_facture.html', products=products, client=client, commande=commande)
 
 
 @app.route('/<int:id>/details_fournisseur', methods=['GET'])
@@ -626,6 +643,7 @@ def unauthorized():
 def deconnexion_admin():
     logout_user()
     return redirect('/')
+
 
 # Initialisation de l'application "app"
 if __name__ == '__main__':

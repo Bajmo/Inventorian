@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Inventorian | Détails Facture{% endblock %}
+{% block body %}
+{% set id_facture = commande.id + 22000 %}
+<div class="container card" style="text-align: center; width: 30%">
+    <div class="card-body">
+        <h5 class="card-title">Détails de la facture du commande n°{{commande.id}}</h5>
+        <div id="invoice">
+            <br>
+            <i class="fa-solid fa-database"></i><span class="font-weight-bold">
+                INVENTORIAN</span>
+            <p class="card-text" style="font-family: Courier New, monospace;"><br>FACTURE N°: {{id_facture}}</p>
+            <div align="left" style="font-family: Courier New, monospace;">
+                <div style=" margin:0;
+            padding:0;
+            line-height:10px;">
+                    <p class="card-text" align="center">
+                        ************************************************************************************
+                    </p>
+                    <p class="card-text">NOM CLIENT: {{client.nickname}}</p>
+                    <p class="card-text">TÉL. CLIENT: {{client.numberPhone}}</p>
+                    <p class="card-text">EMAIL CLIENT: {{client.mail}}</p>
+                    <p class="card-text">DATE COMMANDE: <span align="right">{{commande.dateComande}}</span></p>
+                    <p class="card-text" align="center">
+                        ************************************************************************************
+                    </p>
+                </div>
+                <table>
+                    <thead>
+                        <th>NOM</th>
+                        <th>QTE</th>
+                        <th>&nbsp;&nbsp;&nbsp;PRIX</th>
+                    </thead>
+                    <tbody>
+                        {% set liste_prods = commande.liste_product.split("\n") %}
+                        {% for prod in liste_prods[:-1] %}
+                        {% set info_prod = prod.split(":") %}
+                        <tr>
+                            <td>{{info_prod[1]}}</td>
+                            <td>{{info_prod[2]}}</td>
+                            {% for product in products %}
+                            {% if product.id == info_prod[0]|int %}
+                            <td>&nbsp;&nbsp;&nbsp;{{'%0.2f'|format(product.price|float)}}</td>
+                            {% endif %}
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div style=" margin:0; padding:0; line-height:10px;">
+                    <p class="card-text" align="center">
+                        ************************************************************************************
+                    </p>
+                    <p class="card-text">MONTANT TOTAL À PAYER: {{'%0.2f'|format(commande.TotalPrix|float)}} MAD</p>
+                    <p class="card-text" align="center">
+                        ************************************************************************************
+                    </p>
+                </div>
+                <br>
+            </div>
+        </div>
+        <button onclick="export_pdf()" class="btn btn-default btn-download"
+            style="background-color: rgb(193, 122, 222); color: aliceblue;">Générer PDF</button>
+    </div>
+</div>
+
+<script>
+    const options = {
+        margin: 0.5,
+        filename: 'facture_n{{id_facture}}.pdf',
+        image: {
+            type: 'jpeg',
+            quality: 500
+        },
+        html2canvas: {
+            scale: 1
+        },
+        jsPDF: {
+            unit: 'in',
+            format: 'letter',
+            orientation: 'portrait'
+        }
+    }
+</script>
+
+{% endblock %}
