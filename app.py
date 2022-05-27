@@ -44,6 +44,8 @@ class Admin(db.Model):
         self.telephone = telephone
         self.password = password
 
+
+    # Attributs de la classe d'utilisateur utilisés par flask-login
     @property
     def is_active(self):
         return True
@@ -338,7 +340,7 @@ def getListeCommande(id):
 @app.route('/liste_produits')
 @login_required
 def liste_produits():
-    products = ProductModel.query.all()
+    products = ProductModel.query.join(Stock).all()
     nbrCommandes = Commande.query.count()
     nbrCommandesConfirmees = Commande.query.filter_by(
         status="Accepted").count()
@@ -357,12 +359,14 @@ def liste_fournisseurs():
 @app.route('/liste_commandes', methods=['GET'])
 @login_required
 def liste_commandes():
+    products = ProductModel.query.all()
+    clients = Client.query.all()
     commandes = Commande.query.all()
     commandesFinalisees = Commande.query.filter_by(status="Accepted")
     revenue = 0.0
     for commande in commandesFinalisees:
         revenue += commande.TotalPrix
-    return render_template('/liste_commandes.html', commandes=commandes, revenue=revenue)
+    return render_template('/liste_commandes.html', commandes=commandes, revenue=revenue, clients=clients, products=products)
 
 
 @app.route('/liste_clients')
@@ -511,6 +515,8 @@ def supprimer_fournisseur(id):
 @app.route('/<int:id>/details_article', methods=['GET'])
 @login_required
 def details_article(id):
+    products = ProductModel.query.all()
+    clients = Client.query.all()
     liste_commandes = Commande.query.all()
     commandes = []
     product = ProductModel.query.filter_by(id=id).first()
@@ -527,17 +533,18 @@ def details_article(id):
                         commandes.extend(Commande.query.filter_by(
                             liste_product=commande_a_chercher.liste_product))
     if len(commandes) > 0:
-        return render_template('/details_article.html', fournisseur=fournisseur, commandes=commandes, product=product)
+        return render_template('/details_article.html', fournisseur=fournisseur, commandes=commandes, product=product, clients=clients, products=products)
     else:
-        return render_template('/details_article.html', fournisseur=fournisseur, product=product)
+        return render_template('/details_article.html', fournisseur=fournisseur, product=product, clients=clients)
 
 
 @app.route('/<int:id>/details_client', methods=['GET'])
 @login_required
 def details_client(id):
+    products = ProductModel.query.all()
     commandes = Commande.query.filter_by(id_Client=id)
     client = Client.query.filter_by(id=id).first()
-    return render_template('/details_client.html', client=client, commandes=commandes)
+    return render_template('/details_client.html', client=client, commandes=commandes, products=products)
 
 
 @app.route('/<int:id>/details_facture', methods=['GET'])

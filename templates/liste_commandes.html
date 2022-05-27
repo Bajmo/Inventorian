@@ -40,10 +40,14 @@
             <tr>
                 <td>{{commande.id}}</td>
                 <td align="center">
+                    {% for client in clients %}
+                    {% if client.id == commande.id_Client %}
                     <a href="{{url_for('details_client', id=commande.id_Client)}}"
                         style="font-size: 24px; color: rgb(193, 122, 222);">
-                        <i class="fa-solid fa-arrow-right-to-bracket">&nbsp;&nbsp;</i>
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
                     </a>
+                    {% endif %}
+                    {% endfor %}
                 </td>
                 <td>{{commande.dateComande}}</td>
                 <td>{{commande.adresseCommande}}</td>
@@ -62,10 +66,14 @@
                             {% set info_prod = prod.split(":") %}
                             <tr>
                                 <th scope="row">
+                                    {% for product in products %}
+                                    {% if info_prod[0]|int == product.id %}
                                     <a href="{{url_for('details_article', id=info_prod[0])}}"
                                         style="font-size: 24px; color: rgb(193, 122, 222);">
                                         <i class="fa-solid fa-arrow-right-to-bracket"></i>
                                     </a>
+                                    {% endif %}
+                                    {% endfor %}
                                 </th>
                                 <td>{{info_prod[1]}}</td>
                                 <td>{{info_prod[2]}}</td>
