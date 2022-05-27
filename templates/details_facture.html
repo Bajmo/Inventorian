@@ -10,6 +10,7 @@
             <i class="fa-solid fa-database"></i><span class="font-weight-bold">
                 INVENTORIAN</span>
             <p class="card-text" style="font-family: Courier New, monospace;"><br>FACTURE N°: {{id_facture}}</p>
+            <p class="card-text" style="font-family: Courier New, monospace;">COMMANDE CONFIRMÉE PAR: {{admin.pseudo}}</p>
             <div align="left" style="font-family: Courier New, monospace;">
                 <div style=" margin:0;
             padding:0;
@@ -28,7 +29,7 @@
                 <table>
                     <thead>
                         <th>NOM</th>
-                        <th>QTE</th>
+                        <th>&nbsp;QTE</th>
                         <th>&nbsp;&nbsp;&nbsp;PRIX</th>
                     </thead>
                     <tbody>
@@ -37,7 +38,7 @@
                         {% set info_prod = prod.split(":") %}
                         <tr>
                             <td>{{info_prod[1]}}</td>
-                            <td>{{info_prod[2]}}</td>
+                            <td>&nbsp;{{info_prod[2]}}</td>
                             {% for product in products %}
                             {% if product.id == info_prod[0]|int %}
                             <td>&nbsp;&nbsp;&nbsp;{{'%0.2f'|format(product.price|float)}}</td>

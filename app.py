@@ -336,6 +336,7 @@ def getListeCommande(id):
     return jsonify(result)
 
 
+
 # Définition des routes: WEB
 @app.route('/liste_produits')
 @login_required
@@ -526,12 +527,10 @@ def details_article(id):
         for prod in liste_prods[:-1]:
             info_prod = prod.split(":")
             if id == int(info_prod[0]):
-                x = Commande.query.filter_by(
-                    liste_product=commande_a_chercher.liste_product)
+                x = Commande.query.filter_by(liste_product=commande_a_chercher.liste_product)
                 for y in x:
                     if y not in commandes:
-                        commandes.extend(Commande.query.filter_by(
-                            liste_product=commande_a_chercher.liste_product))
+                        commandes.extend(Commande.query.filter_by(liste_product=commande_a_chercher.liste_product))
     if len(commandes) > 0:
         return render_template('/details_article.html', fournisseur=fournisseur, commandes=commandes, product=product, clients=clients, products=products)
     else:
@@ -550,6 +549,8 @@ def details_client(id):
 @app.route('/<int:id>/details_facture', methods=['GET'])
 @login_required
 def details_facture(id):
+    global id_admin
+    admin = Admin.query.filter_by(id=id_admin).first()
     commande = Commande.query.filter_by(id=id).first()
     client = Client.query.filter_by(id=commande.id_Client).first()
     liste_prods = commande.liste_product.split("\n")
@@ -560,7 +561,7 @@ def details_facture(id):
         for y in x:
             if y not in products:
                 products.extend(ProductModel.query.filter_by(id=info_prod[0]))
-    return render_template('/details_facture.html', products=products, client=client, commande=commande)
+    return render_template('/details_facture.html', products=products, client=client, commande=commande, admin=admin)
 
 
 @app.route('/<int:id>/details_fournisseur', methods=['GET'])
@@ -619,6 +620,7 @@ def inscription_admin():
 
 @app.route('/', methods=['GET', 'POST'])
 def connexion_admin():
+    
     error = ""
     if request.method == 'POST':
         email = request.form['email']
@@ -626,6 +628,8 @@ def connexion_admin():
         admin = Admin.query.filter_by(email=email).first()
         if admin:
             if password == admin.password:
+                global id_admin
+                id_admin = admin.id
                 login_user(admin)
                 """
                 next = Flask.request.args.get('next')
